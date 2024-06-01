@@ -1,12 +1,12 @@
 # SA2 Skin Selector
 
 
-1. About
+## About
 
 This mod allows you to select a different character skin mod in real time.
 This is done in a way so you open a menu in game and can select between different skin mods, this also includes the multiplayer costumes from the original game. 
 
-2. Features
+## Features
 - Can toggle skin in real time
 - Support custom name for model, animation and textures
 - Allow you to add a custom icon for each skin that you want in the menu
@@ -14,7 +14,7 @@ This is done in a way so you open a menu in game and can select between differen
 - Support custom effects textures (some mod like Mario uses it.)
 
 
-3. Installation:
+## Installation:
 
     1) Make sure you have the latest version of SA2 Mod Loader downloaded and installed.
     2) Download the latest version of the mod and place the entire folder in the mods folder.
