@@ -12,7 +12,6 @@ DataPointer(int, dword_1AF191C, 0x1AF191C);
 DataPointer(void*, dword_1AF1918, 0x1AF1918);
 FunctionPointer(void, sub_48FA80, (NJS_OBJECT*, void*), 0x48FA80);
 
-const std::string resourcedir = "resource\\gd_pc\\";
 #pragma warning(disable : 4996)
 #pragma comment(lib, "Shlwapi.lib")
 std::unordered_map<ModelIndex*, std::list<ModelInfo>> modelfiles;

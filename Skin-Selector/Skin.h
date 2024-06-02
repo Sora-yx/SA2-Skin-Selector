@@ -3,12 +3,12 @@
 
 struct CharInfo
 {
-	const char* mdlName;
-	const char* texName;
-	const char* animName;
-	const char* effTexName;
-	const char* lifeIconTexName;
-	const char* oneUpTexName;
+	const char* mdlName = NULL;
+	const char* texName = NULL;
+	const char* animName = NULL;
+	const char* effTexName = NULL;
+	const char* lifeIconTexName = NULL;
+	const char* oneUpTexName = NULL;
 };
 
 
@@ -31,7 +31,7 @@ struct SkinMod
 	std::string FolderPath;
 	uint16_t uniqueID;
 	SkinType Type;
-	bool JiggleDisabled = false;
+	bool DisableJiggle = false;
 	CharInfo Extra;
 };
 

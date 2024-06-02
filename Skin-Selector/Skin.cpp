@@ -7,13 +7,12 @@
 
 std::vector<SkinMod> skinList;
 SkinMod currentSkin[PMax];
-const std::string resourcedir = "resource\\gd_pc\\";
 
-CharInfo SonicLegacyInfo[] =
+CharInfo SonicLegacyInfo[3] =
 {
 	{ "SONICMDL", "SONICTEX", "SONICMTN", "s_efftex", "zanki_sonic", "itemp_1up"},
 	{ "SONIC1MDL", "SONIC1TEX", "SONICMTN", "s_efftex", "zanki_sonic", "itemp_1up"},
-	{NULL},
+	{ NULL }
 };
 
 SkinMod SonicLegacy[] =
@@ -137,7 +136,7 @@ CharInfo ChaosLegacyInfo[] =
 
 SkinMod ChaosLegacy = { Characters_Chaos, "Chaos 0 (Regular)", "Sonic Team", "Desc", "", "", 0, Legacy, false, ChaosLegacyInfo[0] };
 
-CharInfo* GetCostumeList(const uint8_t pnum)
+CharInfo* GetCharInfoList(const uint8_t pnum)
 {
 	auto p = MainCharObj2[pnum];
 	if (!p)
@@ -223,29 +222,48 @@ static SkinMenuItem* GetCurrentSkin(const uint8_t pnum)
 {
 	auto skin = GetSelectedItem(pnum);
 
-	if (skin && GetSkinListIndex(skin->data.uniqueID) > 1)
+	if (skin && GetSkinListIndex(skin->data.uniqueID) >= 0)
 		return skin;
 
 	return nullptr;
 }
 
-std::string GetTexturePath(SkinMenuItem* skin, std::string folderPath, std::string legacyTexName)
+
+std::string GetPakOrPrsTexture(const char* folderPath, const char* texName)
 {
-	std::string s = folderPath + "\\gd_PC\\prs\\" + skin->data.Extra.texName;
-	s = normalizePath(s.c_str());
+	std::string EffTex = folderPath + (std::string)"\\gd_PC\\" + texName;
+	EffTex = normalizePath(EffTex.c_str());
 
-	if (FileExists(s))
-		return s;
+	if (FileExists(EffTex))
+		return EffTex;
 
-	s = folderPath + "\\gd_PC\\prs\\" + skin->data.Extra.texName + ".PAK";
-	s = normalizePath(s.c_str());
+	EffTex = folderPath + (std::string)"\\gd_PC\\" + texName + ".prs";
+	EffTex = normalizePath(EffTex.c_str());
 
-	if (FileExists(s))
-		return s;
+	if (FileExists(EffTex))
+		return EffTex;
 
-	s = folderPath + "\\gd_PC\\" + skin->data.Extra.texName + ".PRS";
+	EffTex = folderPath + (std::string)"\\gd_PC\\PRS" + texName + ".GVR";
+	EffTex = normalizePath(EffTex.c_str());
 
-	if (FileExists(s))
+	if (FileExists(EffTex))
+		return EffTex;
+
+	//if still not found, assume it's a simple PAK.
+	EffTex = folderPath + (std::string)"\\gd_PC\\PRS\\" + texName + ".pak";
+	EffTex = normalizePath(EffTex.c_str());
+
+	if (FileExists(EffTex))
+		return EffTex;
+
+	return "";
+}
+
+std::string GetCharTexturePath(SkinMenuItem* skin, std::string folderPath, std::string legacyTexName)
+{
+	std::string s = GetPakOrPrsTexture(folderPath.c_str(), skin->data.Extra.texName);
+
+	if (s != "" && FileExists(s))
 		return s;
 
 	//if still not found, assume it's legacy name and PAK
@@ -362,15 +380,145 @@ static void LoadTikalJiggle(KnucklesCharObj2* tco2)
 	tco2->HeadJigglePos = MainCharObj1[tco2->base.PlayerNum]->Position;
 }
 
+static NJS_TEXLIST* GetEffTexlist(uint8_t charID, const uint8_t pnum)
+{
+	KnucklesCharObj2* kCo2 = (KnucklesCharObj2*)MainCharacter[pnum]->Data2.Entity;
+	switch (charID)
+	{
+	case Characters_Sonic:
+		return &Texlist_SonEff;
+	case Characters_Shadow:
+		return &Texlist_ShadEff;
+	case Characters_Amy:
+		return &Texlist_AmyEff;
+	case Characters_MetalSonic:
+		return &Texlist_MetEff;
+	case Characters_Knuckles:
+	case Characters_Rouge:
+	case Characters_Chaos:
+		return kCo2->EffectTextureList;
+	}
+
+	return nullptr;
+}
+
+static void LoadCharEffTextures(uint8_t charID, const char* texName)
+{
+	switch (charID)
+	{
+	case Characters_Sonic:
+		LoadTextureList(texName, &Texlist_SonEff);
+		break;
+	case Characters_Shadow:
+		LoadTextureList(texName, &Texlist_ShadEff);
+		break;
+	case Characters_Amy:
+		LoadTextureList(texName, &Texlist_AmyEff);
+		break;
+	case Characters_MetalSonic:
+		LoadTextureList(texName, &Texlist_MetEff);
+		break;
+	}
+}
+
+
+
+static void RestoreLegacyEffTex(CharInfo* info, const uint8_t pnum, const uint8_t charID2)
+{
+	std::string legacyTexPath = resourcedir + info->effTexName + ".prs";
+	legacyTexPath = normalizePath(legacyTexPath.c_str());
+	HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
+	FreeTexList(GetEffTexlist(charID2, pnum));
+	if (MainCharObj2[pnum]->CharID == Characters_Knuckles || MainCharObj2[pnum]->CharID == Characters_Rouge)
+	{
+		KnucklesCharObj2* kCo2 = (KnucklesCharObj2*)MainCharacter[pnum]->Data2.Entity;
+		kCo2->EffectTextureList = LoadCharTextures(info->effTexName);
+	}
+	else
+	{
+		LoadCharEffTextures(charID2, info->effTexName);
+	}
+}
+
+static void RestoreLegacyLifeIcon(CharInfo* info, const uint8_t pnum, const uint8_t charID2)
+{
+	std::string legacyTexPath = resourcedir + info->lifeIconTexName + ".GVR";
+	legacyTexPath = normalizePath(legacyTexPath.c_str());
+	FreeTexList(LifeIconTexs[charID2]);
+	HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
+	LoadTextureList_NoName(LifeIconTexs[charID2]);
+}
+
+static void RestoreLegacyExtraTextures(CharInfo* info, const uint8_t pnum, const uint8_t charID2)
+{
+	//restore eff tex
+	RestoreLegacyEffTex(info, pnum, charID2);
+	RestoreLegacyLifeIcon(info, pnum, charID2);
+}
+
+
+static void ReplaceExtraTextures(CharInfo* info, const char* folderPath, const uint8_t pnum, const uint8_t charID2)
+{
+	std::string legacyTexPath = resourcedir + info->effTexName + ".prs";
+	legacyTexPath = normalizePath(legacyTexPath.c_str());
+	std::string ModTexPath = GetPakOrPrsTexture(folderPath, info->effTexName);
+	auto charID = MainCharObj2[pnum]->CharID;
+
+	if (ModTexPath != "")
+	{
+		HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
+		FreeTexList(GetEffTexlist(charID2, pnum));
+		HelperFunctionsGlobal.ReplaceFile(legacyTexPath.c_str(), ModTexPath.c_str());
+		if (charID == Characters_Knuckles || charID == Characters_Rouge)
+		{
+			KnucklesCharObj2* kCo2 = (KnucklesCharObj2*)MainCharacter[pnum]->Data2.Entity;
+			kCo2->EffectTextureList = LoadCharTextures(info->effTexName);
+		}
+		else
+		{
+			LoadCharEffTextures(charID2, info->effTexName);
+		}
+	}
+	else
+	{
+		RestoreLegacyEffTex(info, pnum, charID2);
+	}
+
+	legacyTexPath = resourcedir + info->lifeIconTexName + ".GVR";
+	legacyTexPath = normalizePath(legacyTexPath.c_str());
+	ModTexPath = GetPakOrPrsTexture(folderPath, info->lifeIconTexName);
+
+	if (ModTexPath != "")
+	{
+		HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
+		FreeTexList(LifeIconTexs[charID2]);
+		HelperFunctionsGlobal.ReplaceFile(legacyTexPath.c_str(), ModTexPath.c_str());
+		if (charID == Characters_Eggman || charID == Characters_MechEggman)
+		{
+			legacyTexPath = resourcedir + "zanki_egg2.GVR";
+			legacyTexPath = normalizePath(legacyTexPath.c_str());
+			HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
+			ModTexPath = GetPakOrPrsTexture(folderPath, "zanki_egg2");
+			if (ModTexPath != "")
+				HelperFunctionsGlobal.ReplaceFile(legacyTexPath.c_str(), ModTexPath.c_str());
+		}
+
+		LoadTextureList_NoName(LifeIconTexs[charID2]);
+	}
+	else
+	{
+		RestoreLegacyLifeIcon(info, pnum, charID2);
+	}
+}
 
 static void DoSpeedCharsSwap(SkinMenuItem* skin, SonicCharObj2* sCo2, const uint8_t pnum)
 {
-	auto costume = GetCostumeList(pnum); //get outfit 
+	auto CharInfo = GetCharInfoList(pnum); //get outfit 
 
-	if (!costume)
+	if (!CharInfo)
 		return;
 
-	const std::string legacyTexPath = resourcedir + costume[0].texName + ".prs";
+	const std::string legacyTexPath = resourcedir + CharInfo[0].texName + ".prs";
 
 	JiggleInfo* Jiggle = sCo2->SpineJiggle;
 
@@ -382,35 +530,40 @@ static void DoSpeedCharsSwap(SkinMenuItem* skin, SonicCharObj2* sCo2, const uint
 
 	if (skin->data.Type == Legacy || skin->data.Type == LegacyAlt) //if legacy characters from Vanilla game
 	{
+		//Replace Textures
 		HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
 		FreeTexList(sCo2->TextureList);
 		auto altIndex = GetCurrentSlotItem(pnum);
-		sCo2->TextureList = LoadCharTextures(costume[altIndex].texName);
-		std::string mdlName = costume[altIndex].mdlName + (std::string)".PRS";
+		sCo2->TextureList = LoadCharTextures(CharInfo[altIndex].texName);
+		RestoreLegacyExtraTextures(&CharInfo[altIndex], pnum, sCo2->base.CharID2);
+
+		//replace model
+		std::string mdlName = CharInfo[altIndex].mdlName + (std::string)".PRS";
 		ReleaseMDLFile(sCo2->ModelList);
 		sCo2->ModelList = LoadMDLFile((char*)mdlName.c_str());
 	}
 	else
 	{
 		const std::string folderPath = skin->data.FolderPath;
-		std::string texPath = GetTexturePath(skin, folderPath, costume[0].texName);
+		std::string texPath = GetCharTexturePath(skin, folderPath, CharInfo[0].texName);
 		if (DirectoryExists(folderPath) && FileExists(texPath))
 		{
 			//Replace Textures
 			HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
 			FreeTexList(sCo2->TextureList);
 			HelperFunctionsGlobal.ReplaceFile(legacyTexPath.c_str(), texPath.c_str());
-			sCo2->TextureList = LoadCharTextures(costume[0].texName);
+			sCo2->TextureList = LoadCharTextures(CharInfo[0].texName);
+			ReplaceExtraTextures(&CharInfo[0], folderPath.c_str(), pnum, sCo2->base.CharID2);
 
 			//Replace Model
 			ReleaseSkinMDLFile(sCo2->ModelList);
-			std::string mdlName = costume[0].mdlName + (std::string)".PRS";
+			std::string mdlName = CharInfo[0].mdlName + (std::string)".PRS";
 			sCo2->ModelList = LoadSkinMdlFile(mdlName.c_str(), folderPath.c_str());
 		}
 	}
 
 	const uint8_t charID2 = sCo2->base.CharID2;
-	if (skin->data.JiggleDisabled == false)
+	if (skin->data.DisableJiggle == false)
 	{
 		if (charID2 == Characters_Sonic)
 			LoadSonicJiggle(sCo2);
@@ -425,9 +578,9 @@ static void DoSpeedCharsSwap(SkinMenuItem* skin, SonicCharObj2* sCo2, const uint
 
 static void DoKnuxRougeSwap(SkinMenuItem* skin, KnucklesCharObj2* kCo2, const uint8_t pnum)
 {
-	auto costume = GetCostumeList(pnum); //get outfit 
+	auto CharInfo = GetCharInfoList(pnum); //get outfit 
 
-	if (!costume)
+	if (!CharInfo)
 		return;
 
 	JiggleInfo* Jiggle = kCo2->HeadJiggle;
@@ -454,37 +607,45 @@ static void DoKnuxRougeSwap(SkinMenuItem* skin, KnucklesCharObj2* kCo2, const ui
 		kCo2->LowerTorsoJiggle = 0;
 	}
 
-	const std::string legacyTexPath = resourcedir + costume[0].texName + ".prs";
+	const std::string legacyTexPath = resourcedir + CharInfo[0].texName + ".prs";
 
 	if (skin->data.Type == Legacy || skin->data.Type == LegacyAlt) //if legacy characters from Vanilla game
 	{
+		//replace texture
 		HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
 		FreeTexList(kCo2->TextureList);
 		const auto altIndex = GetCurrentSlotItem(pnum);
-		kCo2->TextureList = LoadCharTextures(costume[altIndex].texName);
-		std::string mdlName = costume[altIndex].mdlName + (std::string)".PRS";
+		kCo2->TextureList = LoadCharTextures(CharInfo[altIndex].texName);
+		RestoreLegacyExtraTextures(&CharInfo[altIndex], pnum, kCo2->base.CharID2);
+
+		//replace model
+		std::string mdlName = CharInfo[altIndex].mdlName + (std::string)".PRS";
 		ReleaseMDLFile(kCo2->ModelList);
 		kCo2->ModelList = LoadMDLFile((char*)mdlName.c_str());
+
 	}
 	else
 	{
 		const std::string folderPath = skin->data.FolderPath;
-		std::string texPath = GetTexturePath(skin, folderPath, costume[0].texName);
+		std::string texPath = GetCharTexturePath(skin, folderPath, CharInfo[0].texName);
 		if (DirectoryExists(folderPath) && FileExists(texPath))
 		{
+			//Replace Textures
 			HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
 			FreeTexList(kCo2->TextureList);
 			HelperFunctionsGlobal.ReplaceFile(legacyTexPath.c_str(), texPath.c_str());
-			kCo2->TextureList = LoadCharTextures(costume[0].texName);
+			kCo2->TextureList = LoadCharTextures(CharInfo[0].texName);
+			ReplaceExtraTextures(&CharInfo[0], folderPath.c_str(), pnum, kCo2->base.CharID2);
 
+			//Replace Models
 			ReleaseSkinMDLFile(kCo2->ModelList);
-			std::string mdlName = costume[0].mdlName + (std::string)".PRS";
+			std::string mdlName = CharInfo[0].mdlName + (std::string)".PRS";
 			kCo2->ModelList = LoadSkinMdlFile(mdlName.c_str(), folderPath.c_str());
 		}
 	}
 
 	const uint8_t charID2 = kCo2->base.CharID2;
-	if (skin->data.JiggleDisabled == false)
+	if (skin->data.DisableJiggle == false)
 	{
 		if (charID2 == Characters_Knuckles)
 			LoadKnuxJiggle(kCo2);
@@ -517,7 +678,6 @@ void SwapSkin(const uint8_t pnum)
 	case Characters_Sonic:
 	case Characters_Shadow:
 		mdl = sCO2->ModelList;
-		skin = GetCurrentSkin(pnum);
 		skin = GetCurrentSkin(pnum);
 		if (skin && mdl)
 			DoSpeedCharsSwap(skin, sCO2, pnum);
@@ -555,6 +715,56 @@ void SwapSkin(const uint8_t pnum)
 		/**if (skin && mdl)
 			DoSuperSwap(skin, meCO2, pnum);*/
 		break;
+	}
+}
+
+static void FillCharInfo(SkinMod* mod)
+{
+	std::string mdl = mod->Extra.mdlName;
+	std::string texName = mod->Extra.texName;
+	if (mdl == "" && texName == "")
+	{
+		const bool isAlt = mod->Type == Alt || mod->Type == LegacyAlt;
+		switch (mod->Character)
+		{
+		case Characters_Sonic:
+			mod->Extra = isAlt ? SonicLegacyInfo[1] : SonicLegacyInfo[0];
+			break;
+		case Characters_Shadow:
+			mod->Extra = isAlt ? ShadowLegacyInfo[1] : ShadowLegacyInfo[0];
+			break;
+		case Characters_Tails:
+			mod->Extra = MilesLegacyInfo[0];
+			break;
+		case Characters_Eggman:
+			mod->Extra = EggmanLegacyInfo[0];
+			break;
+		case Characters_Knuckles:
+			mod->Extra = isAlt ? KnuxLegacyInfo[1] : KnuxLegacyInfo[0];
+			break;
+		case Characters_Rouge:
+			mod->Extra = isAlt ? RougeLegacyInfo[1] : RougeLegacyInfo[0];
+			break;
+		case Characters_MechTails:
+			mod->Extra = isAlt ? MechTailsLegacyInfo[1] : MechTailsLegacyInfo[0];
+			break;
+		case Characters_MechEggman:
+			mod->Extra = isAlt ? MechEggmanLegacyInfo[1] : MechEggmanLegacyInfo[0];
+			break;
+		case Characters_Amy:
+			mod->Extra = AmyLegacyInfo[0];
+			break;
+		case Characters_MetalSonic:
+			mod->Extra = MSLegacyInfo[0];
+			break;
+		case Characters_Tikal:
+			mod->Extra = TikalLegacyInfo[0];
+			break;
+		case Characters_Chaos:
+			mod->Extra = ChaosLegacyInfo[0];
+			break;
+		}
+	
 	}
 }
 
@@ -603,13 +813,17 @@ void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& list)
 			info.Author = skin->getString("", "Author", "Unknown");
 			info.Cover = skin->getString("", "Cover", "");
 			info.Description = skin->getString("", "Description", "");
-			info.JiggleDisabled = skin->getBool("", "JiggleDisabled", false);
+			info.DisableJiggle = skin->getBool("", "DisableJiggle", false);
 
+			info.Extra.mdlName = skin->getString("Extra", "Model").c_str();
 			info.Extra.texName = skin->getString("Extra", "Texture").c_str();
 			info.Extra.animName = skin->getString("Extra", "Anim").c_str();
+
+			//FillCharInfo(&info);
 			info.Type = (SkinType)skin->getInt("Extra", "Alt", Mod);
+
 			std::filesystem::path pathObj(inipath);
-			
+
 			info.FolderPath = normalizePath(pathObj.parent_path().string().c_str());
 			info.uniqueID = skinList.size() + 1;
 			list.push_back(info);
