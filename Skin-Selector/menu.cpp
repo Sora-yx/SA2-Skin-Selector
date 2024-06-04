@@ -76,7 +76,7 @@ uint8_t getAltTexID(const uint8_t charID)
 	return 0;
 }
 
-const Float cursorSize = 82;
+const Sint16 cursorSize = 82;
 static NJS_TEXANIM menuTexAnim[]
 {
 	{ 400, 300, 0, 0, 0, 0, 0x0FF, 0x0FF, texIDAllBG, 0x0 },
@@ -271,7 +271,7 @@ static void DrawCursor(Float posX, Float posY)
 	ResetMaterial();
 }
 
-static void DrawLegacyCharIcon(const uint8_t pnum, const uint16_t i, bool alt = false)
+static void DrawLegacyCharIcon(const uint8_t pnum, const uint8_t i, bool alt = false)
 {
 	NJS_SPRITE _sp;
 	_sp.sx = 1.0f;
@@ -293,14 +293,14 @@ static void DrawLegacyCharIcon(const uint8_t pnum, const uint16_t i, bool alt = 
 	ResetMaterial();
 }
 
-static void DrawItemsIcon(const uint8_t pnum, const uint8_t i)
+static void DrawItemsIcon(const uint8_t pnum, const uint8_t i, const uint16_t itemIndex)
 {
 	NJS_SPRITE _sp;
 	_sp.sx = 1.0f;
 	_sp.sy = 1.0f;
 	_sp.p.x = menu[pnum].itemPos[i].x;
 	_sp.p.y = menu[pnum].itemPos[i].y;
-	const bool isCustomCover = menu[pnum].items[i].coverTexlist != NULL;
+	const bool isCustomCover = menu[pnum].items[itemIndex].coverTexlist != NULL;
 	if (isCustomCover == false)
 	{
 		_sp.tlist = &menuTexlist;
@@ -308,7 +308,7 @@ static void DrawItemsIcon(const uint8_t pnum, const uint8_t i)
 	}
 	else
 	{
-		_sp.tlist = menu[pnum].items[i].coverTexlist;
+		_sp.tlist = menu[pnum].items[itemIndex].coverTexlist;
 		_sp.tanim = &menuCustomIconTexAnim;
 	}
 
@@ -339,11 +339,11 @@ static void DisplayMenu(const uint8_t pnum)
 		const uint16_t itemIndex = i * (menu[pnum].cursor.curPage + 1);
 		if (isLegacy(menu[pnum].items[itemIndex].data.Type))
 		{
-			DrawLegacyCharIcon(pnum, itemIndex, menu[pnum].items[itemIndex].data.Type == LegacyAlt);
+			DrawLegacyCharIcon(pnum, i, menu[pnum].items[itemIndex].data.Type == LegacyAlt);
 		}
 		else
 		{
-			DrawItemsIcon(pnum, itemIndex);
+			DrawItemsIcon(pnum, i, itemIndex);
 		}
 
 		itemOnThePage++;

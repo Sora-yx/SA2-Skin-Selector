@@ -104,24 +104,24 @@ ModelIndex* __cdecl LoadSkinMdlFile(const char* filename, const char* path)
 
 void __cdecl ReleaseSkinMDLFile(ModelIndex* a1)
 {
-	if (a1->Index != -1)
-	{
-		ModelIndex* v1 = a1;
-		do
-		{
-			if (v1->Index >= 0 && v1->Index < 532 && CharacterModels[v1->Index].Model == v1->Model)
-				CharacterModels[v1->Index].Model = 0;
-			++v1;
-		} while (v1->Index != -1);
-	}
 	if (modelfiles.find(a1) != modelfiles.cend())
 	{
+		if (a1->Index != -1)
+		{
+			ModelIndex* v1 = a1;
+			do
+			{
+				if (v1->Index >= 0 && v1->Index < 532 && CharacterModels[v1->Index].Model == v1->Model)
+					CharacterModels[v1->Index].Model = 0;
+				++v1;
+			} while (v1->Index != -1);
+		}
+
 		modelfiles.erase(a1);
 		delete[] a1;
 	}
 	else
 	{
-		*((DWORD*)a1 - 1) = 0x89ABCDEFu;
-		MemoryManager->Deallocate((AllocatedMem*)a1 - 4, (char*)"..\\..\\src\\file_ctl.c", 1091);
+		ReleaseMDLFile(a1);
 	}
 }
