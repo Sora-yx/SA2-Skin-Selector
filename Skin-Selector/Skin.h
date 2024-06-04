@@ -23,14 +23,14 @@ enum SkinType
 
 struct SkinMod
 {
-	Characters Character;
+	Characters Character = Characters_Sonic;
 	std::string Name;
 	std::string Author;
 	std::string Description;
 	std::string Cover;
 	std::string FolderPath;
 	uint16_t uniqueID;
-	SkinType Type;
+	SkinType Type = Mod;
 	bool DisableJiggle = false;
 	CharInfo Extra;
 };
