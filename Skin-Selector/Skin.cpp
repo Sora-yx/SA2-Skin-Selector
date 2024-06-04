@@ -4,6 +4,8 @@
 #include "FileSystem.h"
 #include "model.h"
 #include "menu.h"
+#include <Shlwapi.h>
+
 
 std::vector<SkinMod> skinList;
 SkinMod currentSkin[PMax];
@@ -231,30 +233,38 @@ static SkinMenuItem* GetCurrentSkin(const uint8_t pnum)
 
 std::string GetPakOrPrsTexture(const char* folderPath, const char* texName)
 {
-	std::string EffTex = folderPath + (std::string)"\\gd_PC\\" + texName;
-	EffTex = normalizePath(EffTex.c_str());
+	//first, check if the extension has been included in the tex archive name
+	std::string curTex = folderPath + (std::string)"\\gd_PC\\" + texName;
+	curTex = normalizePath(curTex.c_str());
 
-	if (FileExists(EffTex))
-		return EffTex;
+	if (FileExists(curTex))
+		return curTex;
 
-	EffTex = folderPath + (std::string)"\\gd_PC\\" + texName + ".prs";
-	EffTex = normalizePath(EffTex.c_str());
+	//check if the extension has been included with pak
+	curTex = folderPath + (std::string)"\\gd_PC\\PRS\\" + texName;
+	curTex = normalizePath(curTex.c_str());
 
-	if (FileExists(EffTex))
-		return EffTex;
+	if (FileExists(curTex))
+		return curTex;
 
-	EffTex = folderPath + (std::string)"\\gd_PC\\PRS" + texName + ".GVR";
-	EffTex = normalizePath(EffTex.c_str());
+	curTex = folderPath + (std::string)"\\gd_PC\\" + texName + ".prs";
+	curTex = normalizePath(curTex.c_str());
 
-	if (FileExists(EffTex))
-		return EffTex;
+	if (FileExists(curTex))
+		return curTex;
+
+	curTex = folderPath + (std::string)"\\gd_PC\\" + texName + ".GVR";
+	curTex = normalizePath(curTex.c_str());
+
+	if (FileExists(curTex))
+		return curTex;
 
 	//if still not found, assume it's a simple PAK.
-	EffTex = folderPath + (std::string)"\\gd_PC\\PRS\\" + texName + ".pak";
-	EffTex = normalizePath(EffTex.c_str());
+	curTex = folderPath + (std::string)"\\gd_PC\\PRS\\" + texName + ".pak";
+	curTex = normalizePath(curTex.c_str());
 
-	if (FileExists(EffTex))
-		return EffTex;
+	if (FileExists(curTex))
+		return curTex;
 
 	return "";
 }
@@ -511,6 +521,23 @@ static void ReplaceExtraTextures(CharInfo* info, const char* folderPath, const u
 	}
 }
 
+void LoadCoverSkinTex(SkinMenuItem* skin)
+{
+	if (isLegacy(skin->data.Type))
+		return;
+
+	std::string s = GetPakOrPrsTexture(skin->data.FolderPath.c_str(), skin->data.Cover.c_str());
+
+	if (s != "")
+	{
+		std::string id = std::to_string(skin->data.uniqueID);
+		std::string fileName = skin->data.Cover + id;
+		const std::string legacyTexPath = resourcedir + fileName + ".prs";
+		HelperFunctionsGlobal.ReplaceFile(legacyTexPath.c_str(), s.c_str());
+		skin->coverTexlist = LoadCharTextures(fileName.c_str());
+	}
+}
+
 static void DoSpeedCharsSwap(SkinMenuItem* skin, SonicCharObj2* sCo2, const uint8_t pnum)
 {
 	auto CharInfo = GetCharInfoList(pnum); //get outfit 
@@ -530,17 +557,19 @@ static void DoSpeedCharsSwap(SkinMenuItem* skin, SonicCharObj2* sCo2, const uint
 
 	if (skin->data.Type == Legacy || skin->data.Type == LegacyAlt) //if legacy characters from Vanilla game
 	{
-		//Replace Textures
-		HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
-		FreeTexList(sCo2->TextureList);
 		auto altIndex = GetCurrentSlotItem(pnum);
-		sCo2->TextureList = LoadCharTextures(CharInfo[altIndex].texName);
-		RestoreLegacyExtraTextures(&CharInfo[altIndex], pnum, sCo2->base.CharID2);
 
 		//replace model
 		std::string mdlName = CharInfo[altIndex].mdlName + (std::string)".PRS";
 		ReleaseMDLFile(sCo2->ModelList);
 		sCo2->ModelList = LoadMDLFile((char*)mdlName.c_str());
+
+		//Replace Textures
+		HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
+		FreeTexList(sCo2->TextureList);
+		sCo2->TextureList = LoadCharTextures(CharInfo[altIndex].texName);
+		RestoreLegacyExtraTextures(&CharInfo[altIndex], pnum, sCo2->base.CharID2);
+
 	}
 	else
 	{
@@ -548,6 +577,11 @@ static void DoSpeedCharsSwap(SkinMenuItem* skin, SonicCharObj2* sCo2, const uint
 		std::string texPath = GetCharTexturePath(skin, folderPath, CharInfo[0].texName);
 		if (DirectoryExists(folderPath) && FileExists(texPath))
 		{
+			//Replace Model
+			ReleaseSkinMDLFile(sCo2->ModelList);
+			std::string mdlName = CharInfo[0].mdlName + (std::string)".PRS";
+			sCo2->ModelList = LoadSkinMdlFile(mdlName.c_str(), folderPath.c_str());
+
 			//Replace Textures
 			HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
 			FreeTexList(sCo2->TextureList);
@@ -555,10 +589,6 @@ static void DoSpeedCharsSwap(SkinMenuItem* skin, SonicCharObj2* sCo2, const uint
 			sCo2->TextureList = LoadCharTextures(CharInfo[0].texName);
 			ReplaceExtraTextures(&CharInfo[0], folderPath.c_str(), pnum, sCo2->base.CharID2);
 
-			//Replace Model
-			ReleaseSkinMDLFile(sCo2->ModelList);
-			std::string mdlName = CharInfo[0].mdlName + (std::string)".PRS";
-			sCo2->ModelList = LoadSkinMdlFile(mdlName.c_str(), folderPath.c_str());
 		}
 	}
 
@@ -813,7 +843,7 @@ void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& list)
 			info.Author = skin->getString("", "Author", "Unknown");
 			info.Cover = skin->getString("", "Cover", "");
 			info.Description = skin->getString("", "Description", "");
-			info.DisableJiggle = skin->getBool("", "DisableJiggle", false);
+			info.DisableJiggle = skin->getBool("", "DisableJiggle", true);
 
 			info.Extra.mdlName = skin->getString("Extra", "Model").c_str();
 			info.Extra.texName = skin->getString("Extra", "Texture").c_str();
@@ -834,6 +864,11 @@ void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& list)
 	} while (FindNextFileA(hFind, &data) != 0);
 
 	FindClose(hFind);
+}
+
+bool isLegacy(SkinType type)
+{
+	return type == Legacy || type == LegacyAlt;
 }
 
 static void AddLegacySkin()

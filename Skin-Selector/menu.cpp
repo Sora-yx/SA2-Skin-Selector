@@ -5,11 +5,10 @@
 #include "FileSystem.h"
 #include "input.h"
 
-
 FunctionHook<void> LoadCharacters_t((intptr_t)LoadCharacters);
 FunctionHook<void, int> RunObjectIndex_t(RunObjectIndex);
 
-static NJS_TEXNAME menuTex[19];
+static NJS_TEXNAME menuTex[25];
 static NJS_TEXLIST menuTexlist{ arrayptrandlengthT(menuTex, Uint32) };
 
 const Sint16 charIconX = 64;
@@ -48,7 +47,34 @@ enum texIndexE
 	texIDTikal,
 	texIDChaos,
 	texIDSkinSelectText,
+	texIDSonicAlt,
+	texIDShadowAlt,
+	texIDKnuxAlt,
+	texIDRougeAlt,
+	texIDTailsMAlt,
+	texIDEggmanMAlt
 };
+
+uint8_t getAltTexID(const uint8_t charID)
+{
+	switch (charID)
+	{
+	case Characters_Sonic:
+		return texIDSonicAlt;
+	case Characters_Shadow:
+		return texIDShadowAlt;
+	case Characters_Knuckles:
+		return texIDKnuxAlt;
+	case Characters_Rouge:
+		return texIDRougeAlt;
+	case Characters_MechTails:
+		return texIDTailsMAlt;
+	case Characters_MechEggman:
+		return texIDEggmanMAlt;
+	}
+
+	return 0;
+}
 
 const Float cursorSize = 82;
 static NJS_TEXANIM menuTexAnim[]
@@ -72,9 +98,19 @@ static NJS_TEXANIM menuTexAnim[]
 	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDTikal, 0x0 },
 	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDChaos, 0x0 },
 	{ 150, 32, 0, 0, 0, 0, 0xFF, 0xFF, texIDSkinSelectText, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDSonicAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDShadowAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDKnuxAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDRougeAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDTailsMAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDEggmanMAlt, 0x0 },
 };
 
 static NJS_SPRITE menuSprite = { { 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 0, &menuTexlist, menuTexAnim };
+
+static NJS_TEXANIM menuCustomIconTexAnim =
+{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, 0, 0x0 };
+
 
 SkinMenuData menu[PMax];
 
@@ -235,37 +271,51 @@ static void DrawCursor(Float posX, Float posY)
 	ResetMaterial();
 }
 
-static void DrawLegacyCharIcon(const uint8_t pnum)
+static void DrawLegacyCharIcon(const uint8_t pnum, const uint16_t i, bool alt = false)
 {
 	NJS_SPRITE _sp;
 	_sp.sx = 1.0f;
 	_sp.sy = 1.0f;
-	_sp.p.x = menu[pnum].itemPos[0].x;
-	_sp.p.y = menu[pnum].itemPos[0].y;
+	_sp.p.x = menu[pnum].itemPos[i].x;
+	_sp.p.y = menu[pnum].itemPos[i].y;
 	_sp.tlist = &menuTexlist;
 	_sp.tanim = menuTexAnim;
 	_sp.ang = 0;
 
 	SetMaterial(1.0f, 1.0f, 1.0f, 1.0f);
 	uint8_t texID = texIDSonic + menu[pnum].currentCharacter;
+	if (alt)
+	{
+		uint8_t newTexID = getAltTexID(menu[pnum].currentCharacter);
+		texID = newTexID > 0 ? newTexID : texID;
+	}
 	njDrawSprite2D(&_sp, texID, -3.0f, 32);
 	ResetMaterial();
 }
 
 static void DrawItemsIcon(const uint8_t pnum, const uint8_t i)
 {
-
 	NJS_SPRITE _sp;
 	_sp.sx = 1.0f;
 	_sp.sy = 1.0f;
 	_sp.p.x = menu[pnum].itemPos[i].x;
-	_sp.p.y = menu[pnum].itemPos[i].y;;
-	_sp.tlist = &menuTexlist;
-	_sp.tanim = menuTexAnim;
+	_sp.p.y = menu[pnum].itemPos[i].y;
+	const bool isCustomCover = menu[pnum].items[i].coverTexlist != NULL;
+	if (isCustomCover == false)
+	{
+		_sp.tlist = &menuTexlist;
+		_sp.tanim = menuTexAnim;
+	}
+	else
+	{
+		_sp.tlist = menu[pnum].items[i].coverTexlist;
+		_sp.tanim = &menuCustomIconTexAnim;
+	}
+
 	_sp.ang = 0;
 
 	SetMaterial(1.0f, 1.0f, 1.0f, 1.0f);
-	njDrawSprite2D(&_sp, texIDUnknownItem, -3.0f, 32);
+	njDrawSprite2D(&_sp, isCustomCover ? 0 : texIDUnknownItem, -3.0f, 32);
 	ResetMaterial();
 }
 
@@ -283,16 +333,17 @@ static void DisplayMenu(const uint8_t pnum)
 	uint8_t itemOnThePage = 0;
 	for (uint8_t i = 0; i < menu[pnum].itemMaxPerPage; i++)
 	{
-		if (!i && menu[pnum].cursor.curPage == 0)
+		if (i >= menu[pnum].itemCount)
+			break;
+
+		const uint16_t itemIndex = i * (menu[pnum].cursor.curPage + 1);
+		if (isLegacy(menu[pnum].items[itemIndex].data.Type))
 		{
-			DrawLegacyCharIcon(pnum);
+			DrawLegacyCharIcon(pnum, itemIndex, menu[pnum].items[itemIndex].data.Type == LegacyAlt);
 		}
 		else
 		{
-			if (i == menu[pnum].itemCount)
-				break;
-
-			DrawItemsIcon(pnum, i);
+			DrawItemsIcon(pnum, itemIndex);
 		}
 
 		itemOnThePage++;
@@ -441,8 +492,9 @@ static void MenuExec(task* tp)
 {
 	auto pnum = tp->Data1.twp->id;
 	auto twp = tp->Data1.twp;
+	auto p = MainCharObj1[pnum];
 
-	if (menu[pnum].itemCount == 0)
+	if (menu[pnum].itemCount == 0 || !p || p->Action == Action_LightDash)
 		return;
 
 	switch (menu[pnum].mode)
@@ -575,6 +627,8 @@ void initMenuItems(const uint8_t pnum)
 			{
 				count++;
 			}
+
+			LoadCoverSkinTex(&menu[pnum].items.back());
 		}
 	}
 
@@ -620,7 +674,7 @@ void LoadCharacters_r()
 		{
 			for (uint16_t i = 0; i < skinList.size(); i++)
 			{
-				if (skinList[i].Character == p->CharID2 && skinList[i].Type == Legacy || skinList[i].Type == LegacyAlt)
+				if (skinList[i].Character == p->CharID2 && isLegacy(skinList[i].Type))
 				{
 					currentSkin[j] = skinList[i];
 					break;

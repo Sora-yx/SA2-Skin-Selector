@@ -1,13 +1,11 @@
 #pragma once
 
-
 struct SkinMenuItem
 {
 	SkinMod data;
 	NJS_POINT2 pos{ 0 };
 	bool isSelected = false;
-	Float width = 0.0f;
-	Float height = 0.0f;
+	NJS_TEXLIST* coverTexlist = nullptr;
 };
 
 struct SkinMenuCursor
@@ -40,3 +38,4 @@ void InitMenuHack();
 Sint32 GetSkinListIndex(const uint16_t uniqueID);
 Uint32 GetCurrentSlotItem(const uint8_t pnum);
 SkinMenuItem* GetSelectedItem(const uint8_t pnum);
+void LoadCoverSkinTex(SkinMenuItem* skin);

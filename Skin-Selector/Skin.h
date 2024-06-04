@@ -40,3 +40,4 @@ extern std::vector<SkinMod> skinList;
 extern SkinMod currentSkin[];
 CharInfo* GetCostumeList(const uint8_t pnum);
 void SwapSkin(const uint8_t pnum);
+bool isLegacy(SkinType type);
