@@ -11,8 +11,8 @@ FunctionHook<void, int> RunObjectIndex_t(RunObjectIndex);
 static NJS_TEXNAME menuTex[25];
 static NJS_TEXLIST menuTexlist{ arrayptrandlengthT(menuTex, Uint32) };
 
-const Sint16 charIconX = 64;
-const Sint16 charIconY = 64;
+const Sint16 charIconX = 59;
+const Sint16 charIconY = 59;
 
 task* menuTask[PMax];
 
@@ -82,34 +82,34 @@ static NJS_TEXANIM menuTexAnim[]
 	{ 400, 300, 0, 0, 0, 0, 0x0FF, 0x0FF, texIDAllBG, 0x0 },
 	{ 36 , 36, 0, 0, 0, 0, 0x0FF, 0x0FF, texIDCheckMark, 0x0 },
 	{ cursorSize, cursorSize,  cursorSize / 2, cursorSize / 2, 0, 0, 0xFF, 0xFF, texIDCursor, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDUnknownItem, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDSonic, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDShadow, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDMiles, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDEggman, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDKnux, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDRouge, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDTailsM, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDEggmanM, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDAmy, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDMetalSonic, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDNeutralChao, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDDarkChao, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDTikal, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDChaos, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDUnknownItem, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDSonic, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDShadow, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDMiles, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDEggman, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDKnux, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDRouge, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDTailsM, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDEggmanM, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDAmy, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDMetalSonic, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDNeutralChao, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDDarkChao, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDTikal, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDChaos, 0x0 },
 	{ 150, 32, 0, 0, 0, 0, 0xFF, 0xFF, texIDSkinSelectText, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDSonicAlt, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDShadowAlt, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDKnuxAlt, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDRougeAlt, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDTailsMAlt, 0x0 },
-	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, texIDEggmanMAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDSonicAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDShadowAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDKnuxAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDRougeAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDTailsMAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDEggmanMAlt, 0x0 },
 };
 
 static NJS_SPRITE menuSprite = { { 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 0, &menuTexlist, menuTexAnim };
 
 static NJS_TEXANIM menuCustomIconTexAnim =
-{ charIconX, charIconY, charIconX / 2, charIconY / 2, 0, 0, 0xFF, 0xFF, 0, 0x0 };
+{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, 0, 0 };
 
 
 SkinMenuData menu[PMax];
