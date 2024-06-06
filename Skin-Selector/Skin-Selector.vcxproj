@@ -176,6 +176,7 @@
     <ClInclude Include="menu.h" />
     <ClInclude Include="mod.h" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="patches.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="sa2-util.h" />
     <ClInclude Include="Skin.h" />
@@ -188,6 +189,7 @@
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="mod.cpp" />
     <ClCompile Include="models.cpp" />
+    <ClCompile Include="patches.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

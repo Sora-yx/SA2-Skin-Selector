@@ -9,3 +9,5 @@ std::string GetExtension(const std::string& path);
 void PrintDebugText(int loc, const char* Format, ...);
 void markobjswapped(NJS_OBJECT* obj);
 std::string normalizePath(const char* filename);
+void FreeTask(ObjectMaster* tp);
+void FreeTask_(ObjectMaster* tp);

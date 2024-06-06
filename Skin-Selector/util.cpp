@@ -135,3 +135,22 @@ std::string normalizePath(const char* filename)
 	std::transform(path.begin(), path.end(), path.begin(), ::tolower);
 	return path;
 }
+
+void FreeTask(ObjectMaster* tp)
+{
+	if (tp)
+	{
+		tp->MainSub = DeleteObject_;
+		tp = nullptr;
+	}
+}
+
+void FreeTask_(ObjectMaster* tp)
+{
+	if (tp)
+	{
+		DeleteObject_(tp);
+		tp = nullptr;
+	}
+
+}

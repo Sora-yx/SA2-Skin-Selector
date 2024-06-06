@@ -39,3 +39,4 @@ Sint32 GetSkinListIndex(const uint16_t uniqueID);
 Uint32 GetCurrentSlotItem(const uint8_t pnum);
 SkinMenuItem* GetSelectedItem(const uint8_t pnum);
 void LoadCoverSkinTex(SkinMenuItem* skin);
+bool isMenuOpenByAPlayer();

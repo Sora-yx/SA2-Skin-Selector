@@ -4,6 +4,7 @@
 #include <filesystem>
 #include "FileSystem.h"
 #include "input.h"
+#include "patches.h"
 
 FunctionHook<void> LoadCharacters_t((intptr_t)LoadCharacters);
 FunctionHook<void, int> RunObjectIndex_t(RunObjectIndex);
@@ -191,11 +192,22 @@ static bool isMenuOpenByAnotherPlayer(const uint8_t pnum)
 	return false;
 }
 
-static bool isMenuOpenByAPlayer()
+bool isMenuOpenByAPlayer()
 {
 	for (uint8_t j = 0; j < PMax; j++)
 	{
 		if (menu[j].mode != Closed)
+			return true;
+	}
+
+	return false;
+}
+
+bool isMenuFullyOpenByAPlayer()
+{
+	for (uint8_t j = 0; j < PMax; j++)
+	{
+		if (menu[j].mode >= Open && menu[j].mode != Closed)
 			return true;
 	}
 
@@ -455,10 +467,10 @@ static void MenuController(const uint8_t pnum)
 		}
 		else
 		{
-			if (menu[pnum].cursor.curColumn< menu[pnum].columnMax- 1 && GetRealMenuItemIndex(pnum) + 1 <= GetMaxIndex(pnum))
+			if (menu[pnum].cursor.curColumn < menu[pnum].columnMax - 1 && GetRealMenuItemIndex(pnum) + 1 <= GetMaxIndex(pnum))
 				menu[pnum].cursor.curColumn++;
 			else
-				menu[pnum].cursor.curColumn= 0;
+				menu[pnum].cursor.curColumn = 0;
 		}
 
 		PlaySoundProbably(0x8000, 0, 0, 0);
@@ -488,6 +500,9 @@ static void MenuController(const uint8_t pnum)
 	}
 }
 
+
+extern bool deleteTime;
+extern bool isCallbackRunning;
 static void MenuExec(task* tp)
 {
 	auto pnum = tp->Data1.twp->id;
@@ -500,12 +515,13 @@ static void MenuExec(task* tp)
 	switch (menu[pnum].mode)
 	{
 	case Closed:
-		if (isOpeningMenu(pnum))
+		if (isOpeningMenu(pnum) && !isCallbackRunning)
 		{
 			TimerStopped = 1;
+			deleteTime = true;
 			menu[pnum].mode = Init;
 		}
-		break;
+		return;
 	case Init:
 		if (isMenuOpenByAnotherPlayer(pnum))
 		{
@@ -513,9 +529,13 @@ static void MenuExec(task* tp)
 		}
 		else
 		{
+			if (deleteTime == false)
+			{
 			menu[pnum].mode = Open;
 			UpdateCursorPos(pnum);
 			menu[pnum].cursor.currentItem = &menu[pnum].items[0];
+				twp->wtimer = 0;
+		}
 		}
 		break;
 	case Open:
@@ -530,6 +550,8 @@ static void MenuExec(task* tp)
 		}
 		break;
 	case Exit:
+
+		InitEyesTrack(MainCharObj2[pnum]->CharID2, pnum);
 		TimerStopped = 0;
 		memset(&menu[pnum].cursor, 0, sizeof(SkinMenuCursor));
 		ControllerEnabled[pnum] = 1;
@@ -688,7 +710,7 @@ void LoadCharacters_r()
 
 void __cdecl RunObjectIndex_r(int index)
 {
-	if (isMenuOpenByAPlayer())
+	if (isMenuFullyOpenByAPlayer())
 	{
 		if (index > 0)
 			return;

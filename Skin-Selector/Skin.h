@@ -41,3 +41,4 @@ extern SkinMod currentSkin[];
 CharInfo* GetCostumeList(const uint8_t pnum);
 void SwapSkin(const uint8_t pnum);
 bool isLegacy(SkinType type);
+void InitEyesTrack(uint8_t charID2, uint8_t pnum);

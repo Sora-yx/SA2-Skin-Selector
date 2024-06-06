@@ -5,7 +5,7 @@
 #include "model.h"
 #include "menu.h"
 #include <Shlwapi.h>
-
+#include "patches.h"
 
 std::vector<SkinMod> skinList;
 SkinMod currentSkin[PMax];
@@ -272,17 +272,11 @@ std::string GetPakOrPrsTexture(const char* folderPath, const char* texName)
 std::string GetCharTexturePath(SkinMenuItem* skin, std::string folderPath, std::string legacyTexName)
 {
 	std::string s = GetPakOrPrsTexture(folderPath.c_str(), skin->data.Extra.texName);
+	
+	if (s == "")
+		s = GetPakOrPrsTexture(folderPath.c_str(), legacyTexName.c_str());
 
-	if (s != "" && FileExists(s))
-		return s;
-
-	//if still not found, assume it's legacy name and PAK
-	s = folderPath + "\\gd_PC\\prs\\" + legacyTexName + ".PAK";
-
-	if (FileExists(s))
-		return s;
-
-	return "";
+	return s;
 }
 
 static void LoadSonicJiggle(SonicCharObj2* sco2)
@@ -565,7 +559,7 @@ static void DoSpeedCharsSwap(SkinMenuItem* skin, SonicCharObj2* sCo2, const uint
 
 		//replace model
 		std::string mdlName = CharInfo[altIndex].mdlName + (std::string)".PRS";
-		ReleaseMDLFile(sCo2->ModelList);
+		ReleaseSkinMDLFile(sCo2->ModelList);
 		sCo2->ModelList = LoadMDLFile((char*)mdlName.c_str());
 
 		//Replace Textures
@@ -659,7 +653,7 @@ static void DoKnuxRougeSwap(SkinMenuItem* skin, KnucklesCharObj2* kCo2, const ui
 
 		//replace model
 		std::string mdlName = CharInfo[altIndex].mdlName + (std::string)".PRS";
-		ReleaseMDLFile(kCo2->ModelList);
+		ReleaseSkinMDLFile(kCo2->ModelList);
 		kCo2->ModelList = LoadMDLFile((char*)mdlName.c_str());
 	}
 	else
@@ -696,6 +690,62 @@ static void DoKnuxRougeSwap(SkinMenuItem* skin, KnucklesCharObj2* kCo2, const ui
 	}
 
 	currentSkin[pnum] = skin->data;
+}
+
+void InitEyesTrack(uint8_t charID2, uint8_t pnum)
+{
+	switch (charID2)
+	{
+	case Characters_Sonic:
+		SonicEyesArray[0] = CharacterModels[3].Model;
+		SonicEyesArray[1] = CharacterModels[4].Model;
+		SonicEyesArray[2] = CharacterModels[5].Model;
+		LoadEyesTrack(pnum, SonicEyesArray);
+		break;
+	case Characters_Shadow:
+		ShadowEyesArray[0] = CharacterModels[68].Model;
+		ShadowEyesArray[1] = CharacterModels[69].Model;
+		ShadowEyesArray[2] = CharacterModels[70].Model;
+		LoadEyesTrack(pnum, ShadowEyesArray);
+		break;
+	case Characters_Tails:
+		MilesEyesArray[0] = CharacterModels[211].Model;
+		MilesEyesArray[1] = CharacterModels[212].Model;
+		MilesEyesArray[2] = CharacterModels[213].Model;
+		LoadEyesTrack(pnum, MilesEyesArray);
+		break;
+	case Characters_Knuckles:
+		KnuxEyesArray[0] = CharacterModels[145].Model;
+		KnuxEyesArray[1] = CharacterModels[146].Model;
+		KnuxEyesArray[2] = CharacterModels[147].Model;
+		LoadEyesTrack(pnum, KnuxEyesArray);
+		break;
+	case Characters_Rouge:
+		RougeEyesArray[0] = CharacterModels[175].Model;
+		RougeEyesArray[1] = CharacterModels[176].Model;
+		RougeEyesArray[2] = CharacterModels[177].Model;
+		LoadEyesTrack(pnum, RougeEyesArray);
+		break;
+	case Characters_Tikal:
+		TikalEyesArray[0] = CharacterModels[486].Model;
+		TikalEyesArray[1] = CharacterModels[487].Model;
+		TikalEyesArray[2] = CharacterModels[488].Model;
+		LoadEyesTrack(pnum, TikalEyesArray);
+		break;
+	case Characters_Amy:
+		AmyEyesArray[0] = CharacterModels[398].Model;
+		AmyEyesArray[1] = CharacterModels[399].Model;
+		AmyEyesArray[2] = CharacterModels[400].Model;
+		LoadEyesTrack(pnum, AmyEyesArray);
+		break;
+	case Characters_MetalSonic:
+		MSEyesArray[0] = CharacterModels[421].Model;
+		MSEyesArray[1] = CharacterModels[422].Model;
+		MSEyesArray[2] = CharacterModels[423].Model;
+		LoadEyesTrack(pnum, MSEyesArray);
+		break;
+	}
+
 }
 
 void SwapSkin(const uint8_t pnum)
@@ -756,6 +806,8 @@ void SwapSkin(const uint8_t pnum)
 			DoSuperSwap(skin, meCO2, pnum);*/
 		break;
 	}
+
+	DeleteHomingAttackEffect = false;
 }
 
 

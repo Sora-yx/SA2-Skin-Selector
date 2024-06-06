@@ -4,6 +4,7 @@
 #include <string>
 #include "menu.h"
 #include "input.h"
+#include "patches.h"
 #include <direct.h>	
 
 HelperFunctions HelperFunctionsGlobal;
@@ -24,7 +25,6 @@ extern "C" {
 
 	__declspec(dllexport) void __cdecl Init(const char* path, const HelperFunctions& helperFunctions)
 	{
-
 		HelperFunctionsGlobal = helperFunctions;
 		std::filesystem::path pathObj(path);
 		modName = pathObj.filename().string();
@@ -33,10 +33,9 @@ extern "C" {
 	
 		initSkinList(path);
 		InitMenuHack();
+		InitPatches();
 		std::string s = build_mod_path(path, "SDL2.dll");
 		initSDL2(s.c_str());
-		//WriteData<1>((int*)0x77F6B0, 0xC3);
-		//WriteData<5>((int*)0x43F7F4, 0x90);
 	}
 
 	__declspec(dllexport) void __cdecl OnFrame()
