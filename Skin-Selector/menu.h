@@ -6,6 +6,7 @@ struct SkinMenuItem
 	NJS_POINT2 pos{ 0 };
 	bool isSelected = false;
 	NJS_TEXLIST* coverTexlist = nullptr;
+	std::string text;
 };
 
 struct SkinMenuCursor

@@ -132,13 +132,13 @@ void PrintDebugValues(uint8_t pnum)
 		PrintDebugText(NJM_LOCATION(2, 7), "Selected Skin: %s", menu[pnum].items[menu[pnum].cursor.index].data.Name.c_str());
 }
 
-void calculateTitlePosition(const uint8_t pnum, Float sizeX, Float sizeY, Float* outPosX, Float* outPosY) 
+void calculateTitlePosition(const uint8_t pnum, Float sizeX, Float sizeY, Float* outPosX, Float* outPosY)
 {
 	*outPosX = menu[pnum].pos.x + (menuTexAnim[texIDAllBG].sx - sizeX) / 2.0f;
 	*outPosY = menu[pnum].pos.y - (sizeY / 2.0f) + 9.0f;
 }
 
-void calculateBackgroundPosition(Float sizeX, Float sizeY, Float* bgPosX, Float* bgPosY) 
+void calculateBackgroundPosition(Float sizeX, Float sizeY, Float* bgPosX, Float* bgPosY)
 {
 	// Calculate scaling factors
 	Float resScaleX = (HorizontalResolution / 640.0f);
@@ -485,7 +485,7 @@ static void MenuController(const uint8_t pnum)
 			SwapSkin(pnum);
 			menu[pnum].mode = ItemSelected;
 		}
-		
+
 		PlaySoundProbably(32769, 0, 0, 0);
 	}
 	else if (MenuButtons_Pressed[pnum] & Buttons_B)
@@ -531,16 +531,18 @@ static void MenuExec(task* tp)
 		{
 			if (deleteTime == false)
 			{
-			menu[pnum].mode = Open;
-			UpdateCursorPos(pnum);
-			menu[pnum].cursor.currentItem = &menu[pnum].items[0];
+				menu[pnum].mode = Open;
+				UpdateCursorPos(pnum);
+				menu[pnum].cursor.currentItem = &menu[pnum].items[0];
 				twp->wtimer = 0;
-		}
+			}
 		}
 		break;
 	case Open:
 		MenuController(pnum);
-		PrintDebugValues(pnum);
+		//PrintDebugValues(pnum);
+		if (menu[pnum].cursor.currentItem)
+			DrawSubtitlesSA2(1.0f, menu[pnum].cursor.currentItem->text.c_str(), -1, TextLanguage, 0, 0);
 		break;
 	case ItemSelected:
 		if (++twp->wtimer == 30)
@@ -554,8 +556,9 @@ static void MenuExec(task* tp)
 		InitEyesTrack(MainCharObj2[pnum]->CharID2, pnum);
 		TimerStopped = 0;
 		memset(&menu[pnum].cursor, 0, sizeof(SkinMenuCursor));
-		ControllerEnabled[pnum] = 1;
 		menu[pnum].mode = Closed;
+		if (DrawSubtitlesPtr)
+			FreeTask(DrawSubtitlesPtr);
 		break;
 	}
 }
@@ -638,6 +641,8 @@ void initMenuItems(const uint8_t pnum)
 		if (skinList.at(i).Character == menu[pnum].currentCharacter)
 		{
 			menu[pnum].items.push_back({ skinList.at(i) });
+			std::string text = "\a" + skinList.at(i).Name + " - " + skinList.at(i).Author;
+			menu[pnum].items.back().text = text;
 			menu[pnum].itemCount++;
 
 			if (count == menu[pnum].itemMaxPerPage)
@@ -716,10 +721,10 @@ void __cdecl RunObjectIndex_r(int index)
 			return;
 
 		ObjectMaster* obj_;
-		ObjectMaster* objCopy; 
-		void(__cdecl * mainsub)(ObjectMaster*); 
-		ObjectMaster* previous; 
-		Bool v5; 
+		ObjectMaster* objCopy;
+		void(__cdecl * mainsub)(ObjectMaster*);
+		ObjectMaster* previous;
+		Bool v5;
 
 		obj_ = ObjectLists[index];
 		objCopy = obj_;
