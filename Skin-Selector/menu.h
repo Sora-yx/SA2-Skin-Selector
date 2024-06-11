@@ -41,3 +41,5 @@ Uint32 GetCurrentSlotItem(const uint8_t pnum);
 SkinMenuItem* GetSelectedItem(const uint8_t pnum);
 void LoadCoverSkinTex(SkinMenuItem* skin);
 bool isMenuOpenByAPlayer();
+
+std::string GetCharTexturePath(const char* texName, std::string folderPath, std::string legacyTexName);

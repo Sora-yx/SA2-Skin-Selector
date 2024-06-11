@@ -16,9 +16,10 @@
 #include "IniFile.hpp"
 #include "ModelInfo.h"
 #include "AnimationFile.h"
+#include "mod.h"
 #include "sa2-util.h"
 #include "Skin.h"
-#include "mod.h"
+
 #include "util.h"
 
 #endif //PCH_H

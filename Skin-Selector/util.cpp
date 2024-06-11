@@ -73,17 +73,6 @@ void toLowercase(std::string& s)
 	std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
 }
 
-std::string GetExtension(const std::string& path)
-{
-	auto dot = path.rfind('.');
-	if (dot == std::string::npos)
-	{
-		return std::string();
-	}
-
-	return path.substr(dot);
-}
-
 void PrintDebugText(int loc, const char* Format, ...)
 {
 	return HelperFunctionsGlobal.DisplayDebugStringFormatted(loc, Format);

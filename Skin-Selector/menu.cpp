@@ -5,6 +5,7 @@
 #include "FileSystem.h"
 #include "input.h"
 #include "patches.h"
+#include "save.h"
 
 FunctionHook<void> LoadCharacters_t((intptr_t)LoadCharacters);
 FunctionHook<void, int> RunObjectIndex_t(RunObjectIndex);
@@ -378,6 +379,7 @@ static void MenuDisplay(task* tp)
 static void MenuController(const uint8_t pnum)
 {
 	const uint16_t lastSlot = GetMaxIndex(pnum);
+	auto curChar = menu[pnum].currentCharacter;
 
 	if (MenuButtons_Pressed[pnum] & Buttons_Up)
 	{
@@ -481,7 +483,6 @@ static void MenuController(const uint8_t pnum)
 	{
 		if (menu[pnum].mode == Open)
 		{
-			currentSkin[pnum].Type = currentSkin[pnum].Type;
 			SwapSkin(pnum);
 			menu[pnum].mode = ItemSelected;
 		}
@@ -632,7 +633,7 @@ void initMenuItems(const uint8_t pnum)
 	menu[pnum].mode = Closed;
 	menu[pnum].pageMax = 1;
 
-	currentSkin[pnum].Character = menu[pnum].currentCharacter;
+	currentSkin[pnum][pwk->CharID2].Character = menu[pnum].currentCharacter;
 
 	int count = 0;
 
@@ -692,24 +693,6 @@ void InitMenu()
 void LoadCharacters_r()
 {
 	LoadCharacters_t.Original();
-
-
-	for (uint8_t j = 0; j < PMax; j++)
-	{
-		auto p = MainCharObj2[j];
-		if (p)
-		{
-			for (uint16_t i = 0; i < skinList.size(); i++)
-			{
-				if (skinList[i].Character == p->CharID2 && isLegacy(skinList[i].Type))
-				{
-					currentSkin[j] = skinList[i];
-					break;
-				}
-			}
-		}
-	}
-
 	InitMenu();
 }
 

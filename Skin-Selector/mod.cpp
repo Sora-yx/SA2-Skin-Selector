@@ -6,9 +6,12 @@
 #include "input.h"
 #include "patches.h"
 #include <direct.h>	
+#include "save.h"
 
 HelperFunctions HelperFunctionsGlobal;
 std::string modName = "Skin Selector";
+std::string modPath = "";
+bool hdGUI = false;
 
 static std::string build_mod_path(const char* modpath, const char* path)
 {
@@ -28,6 +31,9 @@ extern "C" {
 		HelperFunctionsGlobal = helperFunctions;
 		std::filesystem::path pathObj(path);
 		modName = pathObj.filename().string();
+		modPath = path;
+
+		hdGUI = GetModuleHandle(L"HD GUI.dll") != NULL;
 
 		ReadConfig(path); //get mod settings by the user
 	
@@ -36,6 +42,9 @@ extern "C" {
 		InitPatches();
 		std::string s = build_mod_path(path, "SDL2.dll");
 		initSDL2(s.c_str());
+
+		initSave();
+
 	}
 
 	__declspec(dllexport) void __cdecl OnFrame()
