@@ -334,8 +334,15 @@ static void DrawItemsIcon(const uint8_t pnum, const uint8_t i, const uint16_t it
 
 static void DisplayMenu(const uint8_t pnum)
 {
-	if (GameState != GameStates_Ingame || menu[pnum].itemCount == 0)
+	auto p = MainCharObj1[pnum];
+	auto pwp = MainCharObj2[pnum];
+
+	if (GameState != GameStates_Ingame)
 		return;
+
+	if (menu[pnum].itemCount == 0 || !p || p->Action == Action_LightDash || !pwp || pwp->Powerups & Powerups_Dead)
+		return;
+
 
 	njSetTexture(&menuTexlist);
 
@@ -509,8 +516,12 @@ static void MenuExec(task* tp)
 	auto pnum = tp->Data1.twp->id;
 	auto twp = tp->Data1.twp;
 	auto p = MainCharObj1[pnum];
+	auto pwp = MainCharObj2[pnum];
 
-	if (menu[pnum].itemCount == 0 || !p || p->Action == Action_LightDash)
+	if (GameState != GameStates_Ingame)
+		return;
+
+	if (menu[pnum].itemCount == 0 || !p || p->Action == Action_LightDash || !pwp || pwp->Powerups & Powerups_Dead)
 		return;
 
 	switch (menu[pnum].mode)
@@ -518,7 +529,9 @@ static void MenuExec(task* tp)
 	case Closed:
 		if (isOpeningMenu(pnum) && !isCallbackRunning)
 		{
+
 			TimerStopped = 1;
+			PauseDisabled = 1;
 			deleteTime = true;
 			menu[pnum].mode = Init;
 		}
@@ -555,7 +568,11 @@ static void MenuExec(task* tp)
 	case Exit:
 
 		InitEyesTrack(MainCharObj2[pnum]->CharID2, pnum);
-		TimerStopped = 0;
+		if (pwp->AnimInfo.Current != 54)
+		{
+			TimerStopped = 0;
+			PauseDisabled = 0;
+		}		
 		memset(&menu[pnum].cursor, 0, sizeof(SkinMenuCursor));
 		menu[pnum].mode = Closed;
 		if (DrawSubtitlesPtr)
@@ -619,6 +636,18 @@ void InitMenuDrawSettings(const uint8_t pnum)
 	menu[pnum].itemMaxPerPage = menu[pnum].columnMax * menu[pnum].rowMax;
 }
 
+void FreeMenuTexlistCover()
+{
+	for (uint8_t pnum = 0; pnum < PMax; pnum++)
+	{
+		for (uint8_t i = 0; i < menu[pnum].itemCount; i++)
+		{
+			if (isLegacy(menu[pnum].items[i].data.Type) == false)
+				FreeTexList(menu[pnum].items[i].coverTexlist);
+		}
+	}
+}
+
 
 void initMenuItems(const uint8_t pnum)
 {
@@ -668,6 +697,14 @@ void ClearMenuData(const uint8_t i)
 	memset(&menu[i], 0, sizeof(SkinMenuData));
 }
 
+FunctionHook<void> DeleteLand_t(0x439C80);
+void DeleteLand_r()
+{
+	FreeTexList(&menuTexlist);
+	FreeMenuTexlistCover();
+	DeleteLand_t.Original();
+}
+
 void InitMenu()
 {
 	LoadTextureList("skinMenu", &menuTexlist);
@@ -693,6 +730,26 @@ void InitMenu()
 void LoadCharacters_r()
 {
 	LoadCharacters_t.Original();
+
+	for (uint8_t i = 0; i < PMax; i++)
+	{
+		for (uint8_t j = 0; j < CharMax; j++)
+		{
+
+			if (currentSkin[i][j].Name == "")
+			{
+				for (uint8_t k = 0; k < skinList.size(); k++)
+				{
+					if (skinList[k].Character == j)
+					{
+						currentSkin[i][j] = skinList.at(k);
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	InitMenu();
 }
 
@@ -752,4 +809,5 @@ void InitMenuHack()
 {
 	LoadCharacters_t.Hook(LoadCharacters_r);
 	RunObjectIndex_t.Hook(RunObjectIndex_r);
+	DeleteLand_t.Hook(DeleteLand_r);
 }

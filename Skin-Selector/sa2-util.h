@@ -53,7 +53,8 @@ DataArray(NJS_OBJECT*, RougeEyesArray, 0x1A51B6C, 0x3);
 DataArray(NJS_OBJECT*, MilesEyesArray, 0x1A52150, 0x3);
 
 DataPointer(ObjectMaster*, DrawSubtitlesPtr, 0x1AEFD50);
-
+VoidFunc(FreeSound, 0x437E10);
+DataPointer(char, PauseDisabled, 0x174AFD6);
 
 //void __usercall LoadEyesTrack(int pnum@<ebx>, NJS_OBJECT** a2@<edi>)
 static const void* const LoadEyesTrackPtr = (void*)0x476530;

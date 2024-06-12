@@ -509,7 +509,7 @@ static void LoadCharEffTextures(uint8_t charID, const char* texName)
 
 
 
-static void RestoreLegacyEffTex(CharInfo* info, const uint8_t pnum, const uint8_t charID2)
+static void LoadEffTex(CharInfo* info, const uint8_t pnum, const uint8_t charID2)
 {
 	NJS_TEXLIST* texlistEff = GetEffTexlist(charID2, pnum);
 	if (texlistEff)
@@ -527,57 +527,17 @@ static void RestoreLegacyEffTex(CharInfo* info, const uint8_t pnum, const uint8_
 	}
 }
 
-static void RestoreLegacyLifeIcon(CharInfo* info, const uint8_t charID2)
+static void LoadLifeIcon(CharInfo* info, const uint8_t charID2)
 {
 	FreeTexList(LifeIconTexs[charID2]);
 	LoadTextureList_NoName(LifeIconTexs[charID2]);
 }
 
-static void RestoreLegacyExtraTextures(CharInfo* info, const uint8_t pnum, const uint8_t charID2)
+static void LoadExtraTextures(CharInfo* info, const uint8_t pnum, const uint8_t charID2)
 {
 	//restore eff tex
-	RestoreLegacyEffTex(info, pnum, charID2);
-	RestoreLegacyLifeIcon(info, charID2);
-}
-
-
-static void ReplaceExtraTextures(CharInfo* info, const char* folderPath, const uint8_t pnum, const uint8_t charID2)
-{
-	std::string ModTexPath = GetPakOrPrsTexture(folderPath, info->effTexName);
-	auto charID = MainCharObj2[pnum]->CharID;
-
-	if (ModTexPath != "")
-	{
-		FreeTexList(GetEffTexlist(charID2, pnum));
-
-		if (charID == Characters_Knuckles || charID == Characters_Rouge)
-		{
-			KnucklesCharObj2* kCo2 = (KnucklesCharObj2*)MainCharacter[pnum]->Data2.Entity;
-			kCo2->EffectTextureList = LoadCharTextures(info->effTexName);
-		}
-		else
-		{
-			LoadCharEffTextures(charID2, info->effTexName);
-		}
-	}
-	else
-	{
-		RestoreLegacyEffTex(info, pnum, charID2);
-	}
-
-	std::string legacyTexPath = resourcedir + info->lifeIconTexName + ".GVR";
-	legacyTexPath = normalizePath(legacyTexPath.c_str());
-	ModTexPath = GetPakOrPrsTexture(folderPath, info->lifeIconTexName);
-
-	if (ModTexPath != "")
-	{
-		FreeTexList(LifeIconTexs[charID2]);
-		LoadTextureList_NoName(LifeIconTexs[charID2]);
-	}
-	else
-	{
-		RestoreLegacyLifeIcon(info, charID2);
-	}
+	LoadEffTex(info, pnum, charID2);
+	LoadLifeIcon(info, charID2);
 }
 
 static bool HasCustomAnims(CharInfo* info, const char* folderPath)
@@ -683,15 +643,14 @@ static void DoSpeedCharsSwap(SkinMod* skin, SonicCharObj2* sCo2, const uint8_t p
 		//Replace Textures
 		FreeTexList(sCo2->TextureList);
 		FreeMemory((int*)sCo2->TextureList, (char*)"..\\..\\src\\figure\\sonic\\sonic.c", 6272);
-		sCo2->TextureList = LoadCharTextures(skin->Extra.texName);
-		if (Legacy)
-			RestoreLegacyExtraTextures(&skin->Extra, pnum, charID2);
-		else
-			ReplaceExtraTextures(&skin->Extra, folderPath.c_str(), pnum, charID2);
+		sCo2->TextureList = LoadCharTextures(extraData.texName);
+		LoadExtraTextures(&extraData, pnum, charID2);
 
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
+
+
 	}
 
 
@@ -749,15 +708,14 @@ static void DoMilesSwap(SkinMod* skin, TailsCharObj2New* mCo2, const uint8_t pnu
 		FreeTexList(mCo2->TextureList);
 		FreeMemory((int*)mCo2->TextureList, (char*)"..\\..\\src\\figure\\miles\\miles.c", 2299);
 		mCo2->TextureList = LoadCharTextures(extraData.texName);
-
-		if (Legacy)
-			RestoreLegacyExtraTextures(&extraData, pnum, charID2);
-		else
-			ReplaceExtraTextures(&extraData, folderPath.c_str(), pnum, charID2);
+		LoadExtraTextures(&extraData, pnum, charID2);
 		
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
+		FreeSound();
+		InitCharacterSound();
+		//ReplaceSounds();
 	}
 
 	if (skin->DisableJiggle == false)
@@ -813,15 +771,12 @@ static void DoKnuxRougeSwap(SkinMod* skin, KnucklesCharObj2* kCo2, const uint8_t
 		FreeTexList(kCo2->TextureList);
 		FreeMemory((int*)kCo2->TextureList, (char*)"..\\..\\src\\figure\\knuckles\\knuckles.c", 5464);
 		kCo2->TextureList = LoadCharTextures(extraData.texName);
-
-		if (Legacy)
-			RestoreLegacyExtraTextures(&extraData, pnum, charID2);
-		else
-			ReplaceExtraTextures(&extraData, folderPath.c_str(), pnum, charID2);
+		LoadExtraTextures(&extraData, pnum, charID2);
 
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
+		InitCharacterSound();
 	}
 
 	if (skin->DisableJiggle == false)
