@@ -51,6 +51,8 @@ DataArray(NJS_OBJECT*, TikalEyesArray, 0x1A51CEC, 0x3);
 DataArray(NJS_OBJECT*, KnuxEyesArray, 0x1A51BAC, 0x3);
 DataArray(NJS_OBJECT*, RougeEyesArray, 0x1A51B6C, 0x3);
 DataArray(NJS_OBJECT*, MilesEyesArray, 0x1A52150, 0x3);
+DataArray(NJS_OBJECT*, SuperShadowEyesArray, 0x19EE190, 0x3);
+DataArray(NJS_OBJECT*, SuperSonicEyesArray, 0x19EE184, 0x3);
 
 DataPointer(ObjectMaster*, DrawSubtitlesPtr, 0x1AEFD50);
 VoidFunc(FreeSound, 0x437E10);

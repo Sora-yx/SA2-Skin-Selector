@@ -18,6 +18,9 @@ void SDL2End()
 
 bool isOpeningMenu(const uint8_t pnum)
 {
+    if (ControllerEnabled[pnum] == false)
+        return false;
+
     if (isSDL2 && openMenuBtn >= SDL_CONTROLLER_BUTTON_A && openMenuBtn <= SDL_CONTROLLER_BUTTON_MAX)
     {
         return SDL_GameControllerGetButton(controller, (SDL_GameControllerButton)openMenuBtn) || GetKeyState('I') & 0x8000;

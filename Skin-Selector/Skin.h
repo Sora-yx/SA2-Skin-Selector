@@ -3,12 +3,12 @@
 
 struct CharInfo
 {
-	const char* mdlName = NULL;
-	const char* texName = NULL;
-	const char* animName = NULL;
-	const char* effTexName = NULL;
-	const char* lifeIconTexName = NULL;
-	const char* oneUpTexName = NULL;
+	std::string mdlName = "";
+	std::string texName = "";
+	std::string animName = "";
+	std::string effTexName = "";
+	std::string lifeIconTexName = "";
+	std::string oneUpTexName = "";
 };
 
 

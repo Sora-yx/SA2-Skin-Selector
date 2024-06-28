@@ -9,6 +9,7 @@ TaskHook MilesDelete_t(Tails_Delete);
 TaskHook EggmanDelete_t(Eggman_Delete);
 TaskHook KnuxDelete_t(Knuckles_Delete);
 TaskHook MechDelete_t(MechEggman_Delete);
+TaskHook SuperDelete_t(Super_Delete);
 
 SkinMod* savedSkin[PMax][CharMax] = { nullptr };
 
@@ -45,7 +46,7 @@ static SkinMod* GetSavedSkin(uint8_t charID2, const char* folderPath)
 	return nullptr;
 }
 
-bool Load(const uint8_t pnum, const uint8_t charID2)
+void Load(const uint8_t pnum, const uint8_t charID2)
 {
 	const std::string inipath = modPath + "\\skins\\savedata\\" + "Player" + std::to_string(pnum) + ".ini";
 
@@ -61,11 +62,10 @@ bool Load(const uint8_t pnum, const uint8_t charID2)
 		{
 			savedSkin[pnum][charID2] = GetSavedSkin(charID2, skinFolderPath.c_str());
 			LoadSavedSkin(pnum, charID2);
-			return true;
+			return;
 		}
 	}
 
-	return false;
 }
 
 void SonicDelete_r(ObjectMaster* obj)
@@ -103,6 +103,13 @@ void MechDelete_r(ObjectMaster* obj)
 	MechDelete_t.Original(obj);
 }
 
+void Super_Delete_r(ObjectMaster* obj)
+{
+	auto co2 = (SuperSonicCharObj2*)obj->Data2.Undefined;
+	Save(co2->base.PlayerNum, co2->base.CharID2);
+	SuperDelete_t.Original(obj);
+}
+
 void initSave()
 {
 	SonicDelete_t.Hook(SonicDelete_r);
@@ -110,4 +117,5 @@ void initSave()
 	EggmanDelete_t.Hook(EggmanDelete_r);
 	KnuxDelete_t.Hook(KnuxDelete_r);
 	MechDelete_t.Hook(MechDelete_r);
+	SuperDelete_t.Hook(Super_Delete_r);
 }

@@ -11,12 +11,12 @@ struct SkinMenuItem
 
 struct SkinMenuCursor
 {
-	NJS_POINT2 curPos;
+	NJS_POINT2 curPos{ 0 };
 	uint16_t index = 0;
 	uint8_t curRow = 0;
 	uint8_t curColumn = 0;
 	uint8_t curPage = 0;
-	SkinMenuItem* currentItem;
+	SkinMenuItem* currentItem = nullptr;
 };
 
 struct SkinMenuData
@@ -43,3 +43,4 @@ void LoadCoverSkinTex(SkinMenuItem* skin);
 bool isMenuOpenByAPlayer();
 
 std::string GetCharTexturePath(const char* texName, std::string folderPath, std::string legacyTexName);
+bool isMenuFullyOpenByAPlayer();

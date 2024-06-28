@@ -2,5 +2,5 @@
 
 extern bool DeleteHomingAttackEffect;
 
-extern bool deleteTime;
+extern bool deleteEyeTracker;
 void InitPatches();

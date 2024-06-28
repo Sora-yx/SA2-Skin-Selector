@@ -11,5 +11,5 @@ struct SkinSave
 };
 
 void Save(const uint8_t pnum, const uint8_t charID2);
-bool Load(const uint8_t pnum, const uint8_t charID2);
+void Load(const uint8_t pnum, const uint8_t charID2);
 void initSave();

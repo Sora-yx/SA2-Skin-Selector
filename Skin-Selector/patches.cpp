@@ -1,27 +1,32 @@
 #include "pch.h"
 #include "menu.h"
 
-bool deleteTime = false;
+bool deleteEyeTracker = false;
 bool DeleteHomingAttackEffect = false;
 
-FunctionHook<void, ObjectMaster*> EyeTracker_t(0x4766C0);
+TaskHook EyeTracker_t(0x4766C0);
 UsercallFuncVoid(DoHomingAttackEffect_t,
 	(SonicCharObj2* sco2, EntityData1* twp, EntityData2* mwp, CharObj2Base* co2), (sco2, twp, mwp, co2), 0x720E00, rEBX, stack4, stack4, stack4);
 
-/**UsercallFuncVoid(DoHomingAttackAura_t, (ObjectMaster* tp), (tp), 0x7566C0, rEDI);
+TaskHook HomingDashAuraDisp_t(0x757040);
+TaskHook CameraMain_t(cameraCons_Main);
+FunctionHook<void, int> RunObjectIndex_t(RunObjectIndex);
 
-UsercallFuncVoid(DoJumpAura_t, (ObjectMaster* tp), (tp), 0x756AE0, rEDI);
-UsercallFuncVoid(SpinDashAura_t, (ObjectMaster* tp), (tp), 0x7562A0, rEDI);
-FunctionHook<void, ObjectMaster*> SpinDashAuraDisplay_t(0x756040);*/
-FunctionHook<void, ObjectMaster*> HomingDashAuraDisp_t(0x757040);
+//don't make the camera runs during menu
+void CameraMain_r(ObjectMaster* tp)
+{
+	if (isMenuFullyOpenByAPlayer())
+		return;
 
+	CameraMain_t.Original(tp);
+}
 
 void EyeTracker_r(ObjectMaster* tp)
 {
-	if (deleteTime)
+	if (deleteEyeTracker)
 	{
 		FreeTask(tp);
-		deleteTime = false;
+		deleteEyeTracker = false;
 		return;
 	}
 
@@ -83,16 +88,65 @@ void __cdecl ProcessChunkModelsWithCallback_r(NJS_OBJECT* object, int(__cdecl* c
 	isCallbackRunning = false;
 }
 
+//Prevent most tasks of the game to run when the menu is open so we can pause the game and avoid crash when swapping skins
+void __cdecl RunObjectIndex_r(int index)
+{
+	if (isMenuFullyOpenByAPlayer())
+	{
+		if (index > 0)
+			return;
+
+		ObjectMaster* obj_;
+		ObjectMaster* objCopy;
+		void(__cdecl * mainsub)(ObjectMaster*);
+		ObjectMaster* previous;
+		Bool v5;
+
+		obj_ = ObjectLists[index];
+		objCopy = obj_;
+		if (obj_)
+		{
+			while (1)
+			{
+				mainsub = obj_->MainSub;
+				previous = obj_->PrevObject;
+				CurrentObjectSub = mainsub;
+				if (mainsub)
+				{
+					mainsub(obj_);
+				}
+				v5 = obj_->Child == 0;
+				CurrentObjectSub = 0;
+				if (!v5)
+				{
+					sub_470CC0(obj_);
+				}
+				if (previous == objCopy)
+				{
+					break;
+				}
+				objCopy = ObjectLists[index];
+				if (!objCopy)
+				{
+					break;
+				}
+				obj_ = previous;
+			}
+		}
+	}
+	else
+	{
+		RunObjectIndex_t.Original(index);
+	}
+}
+
 
 void InitPatches()
 {
+	RunObjectIndex_t.Hook(RunObjectIndex_r);
 	EyeTracker_t.Hook(EyeTracker_r);
 	HomingDashAuraDisp_t.Hook(HomingAuraDisp_r);
-	/**DoHomingAttackAura_t.Hook(DoHomingAura_r);
-	DoHomingAttackEffect_t.Hook(DoHomingAttackEffect_r);
-	DoJumpAura_t.Hook(DoJumpAura_r);
-	SpinDashAuraDisplay_t.Hook(SpinDashAuraDisp_r);
-	SpinDashAura_t.Hook(SpinDashAura_r);*/
+	CameraMain_t.Hook(CameraMain_r);
 
 	WriteCall((void*)0x75668B, ProcessChunkModelsWithCallback_r); //homing aura display
 	WriteCall((void*)0x756A2E, ProcessChunkModelsWithCallback_r); //jump aura display

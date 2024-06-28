@@ -8,9 +8,8 @@
 #include "save.h"
 
 FunctionHook<void> LoadCharacters_t((intptr_t)LoadCharacters);
-FunctionHook<void, int> RunObjectIndex_t(RunObjectIndex);
 
-static NJS_TEXNAME menuTex[25];
+static NJS_TEXNAME menuTex[27];
 static NJS_TEXLIST menuTexlist{ arrayptrandlengthT(menuTex, Uint32) };
 
 const Sint16 charIconX = 59;
@@ -25,6 +24,7 @@ enum menuDataE
 	Open,
 	ItemSelected,
 	Exit,
+	Reset,
 };
 
 
@@ -54,7 +54,9 @@ enum texIndexE
 	texIDKnuxAlt,
 	texIDRougeAlt,
 	texIDTailsMAlt,
-	texIDEggmanMAlt
+	texIDEggmanMAlt,
+	texIDSuperSonic,
+	texIDSuperShadow,
 };
 
 uint8_t getAltTexID(const uint8_t charID)
@@ -106,6 +108,8 @@ static NJS_TEXANIM menuTexAnim[]
 	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDRougeAlt, 0x0 },
 	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDTailsMAlt, 0x0 },
 	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDEggmanMAlt, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDSuperSonic, 0x0 },
+	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDSuperShadow, 0x0 },
 };
 
 static NJS_SPRITE menuSprite = { { 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 0, &menuTexlist, menuTexAnim };
@@ -284,7 +288,7 @@ static void DrawCursor(Float posX, Float posY)
 	ResetMaterial();
 }
 
-static void DrawLegacyCharIcon(const uint8_t pnum, const uint8_t i, bool alt = false)
+static void DrawLegacyCharIcon(const uint8_t pnum, const uint8_t i, Characters curChar, bool alt = false)
 {
 	NJS_SPRITE _sp;
 	_sp.sx = 1.0f;
@@ -302,6 +306,15 @@ static void DrawLegacyCharIcon(const uint8_t pnum, const uint8_t i, bool alt = f
 		uint8_t newTexID = getAltTexID(menu[pnum].currentCharacter);
 		texID = newTexID > 0 ? newTexID : texID;
 	}
+	else if (curChar == Characters_SuperSonic)
+	{
+		texID = texIDSuperSonic;
+	}
+	else if (curChar == Characters_SuperShadow)
+	{
+		texID = texIDSuperShadow;
+	}
+
 	njDrawSprite2D(&_sp, texID, -3.0f, 32);
 	ResetMaterial();
 }
@@ -359,7 +372,7 @@ static void DisplayMenu(const uint8_t pnum)
 		const uint16_t itemIndex = i * (menu[pnum].cursor.curPage + 1);
 		if (isLegacy(menu[pnum].items[itemIndex].data.Type))
 		{
-			DrawLegacyCharIcon(pnum, i, menu[pnum].items[itemIndex].data.Type == LegacyAlt);
+			DrawLegacyCharIcon(pnum, i, (Characters)pwp->CharID2, menu[pnum].items[itemIndex].data.Type == LegacyAlt);
 		}
 		else
 		{
@@ -511,6 +524,8 @@ static void MenuController(const uint8_t pnum)
 
 extern bool deleteTime;
 extern bool isCallbackRunning;
+void BuildMenu(const uint8_t pnum);
+void ClearMenuData(const uint8_t i);
 static void MenuExec(task* tp)
 {
 	auto pnum = tp->Data1.twp->id;
@@ -518,24 +533,39 @@ static void MenuExec(task* tp)
 	auto p = MainCharObj1[pnum];
 	auto pwp = MainCharObj2[pnum];
 
-	if (GameState != GameStates_Ingame)
+
+	if (GameState != GameStates_Ingame || menu[pnum].itemCount == 0 || !p || p->Action == Action_LightDash || !pwp)
 		return;
 
-	if (menu[pnum].itemCount == 0 || !p || p->Action == Action_LightDash || !pwp || pwp->Powerups & Powerups_Dead)
-		return;
+	const auto charID2 = pwp->CharID2;
+
+	if (pwp->Powerups & Powerups_Dead || pwp->Upgrades & Upgrades_SuperSonic && charID2 != Characters_SuperShadow && charID2 != Characters_SuperSonic)
+	{
+		if (menu[pnum].mode != Closed)
+			menu[pnum].mode = Exit;
+	}
+
+	const auto menuChar = menu[pnum].currentCharacter;
 
 	switch (menu[pnum].mode)
 	{
 	case Closed:
 		if (isOpeningMenu(pnum) && !isCallbackRunning)
 		{
+			if (charID2 != menuChar)
+			{
+				menu[pnum].mode = Reset;
+				break;
+			}
 
 			TimerStopped = 1;
 			PauseDisabled = 1;
-			deleteTime = true;
+			deleteEyeTracker = true;
+			ControllerEnabled[pnum] = false;
 			menu[pnum].mode = Init;
+
 		}
-		return;
+		break;
 	case Init:
 		if (isMenuOpenByAnotherPlayer(pnum))
 		{
@@ -543,13 +573,11 @@ static void MenuExec(task* tp)
 		}
 		else
 		{
-			if (deleteTime == false)
-			{
-				menu[pnum].mode = Open;
-				UpdateCursorPos(pnum);
-				menu[pnum].cursor.currentItem = &menu[pnum].items[0];
-				twp->wtimer = 0;
-			}
+		
+			menu[pnum].mode = Open;
+			UpdateCursorPos(pnum);
+			menu[pnum].cursor.currentItem = &menu[pnum].items[0];
+			twp->wtimer = 0;
 		}
 		break;
 	case Open:
@@ -566,17 +594,22 @@ static void MenuExec(task* tp)
 		}
 		break;
 	case Exit:
-
-		InitEyesTrack(MainCharObj2[pnum]->CharID2, pnum);
+		ControllerEnabled[pnum] = true;
+		if ( (pwp->Powerups & Powerups_Dead) == 0)
+			InitEyesTrack(MainCharObj2[pnum]->CharID2, pnum);
 		if (pwp->AnimInfo.Current != 54)
 		{
 			TimerStopped = 0;
 			PauseDisabled = 0;
-		}		
+		}
 		memset(&menu[pnum].cursor, 0, sizeof(SkinMenuCursor));
 		menu[pnum].mode = Closed;
 		if (DrawSubtitlesPtr)
 			FreeTask(DrawSubtitlesPtr);
+		break;
+	case Reset:
+		BuildMenu(pnum);
+		menu[pnum].mode = Closed;
 		break;
 	}
 }
@@ -642,8 +675,14 @@ void FreeMenuTexlistCover()
 	{
 		for (uint8_t i = 0; i < menu[pnum].itemCount; i++)
 		{
-			if (isLegacy(menu[pnum].items[i].data.Type) == false)
+			if (isLegacy(menu[pnum].items[i].data.Type) == false && menu[pnum].items[i].coverTexlist != nullptr)
+			{
 				FreeTexList(menu[pnum].items[i].coverTexlist);
+				std::string id = std::to_string(menu[pnum].items[i].data.uniqueID);
+				std::string fileName = menu[pnum].items[i].data.Cover + id;
+				const std::string legacyTexPath = resourcedir + fileName + ".prs";
+				HelperFunctionsGlobal.UnreplaceFile(legacyTexPath.c_str());
+			}
 		}
 	}
 }
@@ -664,7 +703,7 @@ void initMenuItems(const uint8_t pnum)
 
 	currentSkin[pnum][pwk->CharID2].Character = menu[pnum].currentCharacter;
 
-	int count = 0;
+	int16_t count = 0;
 
 	for (uint16_t i = 0; i < skinList.size(); i++)
 	{
@@ -683,7 +722,7 @@ void initMenuItems(const uint8_t pnum)
 			else
 			{
 				count++;
-			}
+		}
 
 			LoadCoverSkinTex(&menu[pnum].items.back());
 		}
@@ -703,6 +742,15 @@ void DeleteLand_r()
 	FreeTexList(&menuTexlist);
 	FreeMenuTexlistCover();
 	DeleteLand_t.Original();
+}
+
+void BuildMenu(const uint8_t pnum)
+{
+	ClearMenuData(pnum);
+	InitMenuDrawSettings(pnum);
+	BuildBackgroundMenu(pnum, 350.0f, 300.0f); //previously 400-300
+	initMenuItems(pnum);
+	BuildItemIconsPos(64.0f, 64.0f, 110.0f, 100.0f); //previously 100-80
 }
 
 void InitMenu()
@@ -735,7 +783,6 @@ void LoadCharacters_r()
 	{
 		for (uint8_t j = 0; j < CharMax; j++)
 		{
-
 			if (currentSkin[i][j].Name == "")
 			{
 				for (uint8_t k = 0; k < skinList.size(); k++)
@@ -753,61 +800,8 @@ void LoadCharacters_r()
 	InitMenu();
 }
 
-void __cdecl RunObjectIndex_r(int index)
-{
-	if (isMenuFullyOpenByAPlayer())
-	{
-		if (index > 0)
-			return;
-
-		ObjectMaster* obj_;
-		ObjectMaster* objCopy;
-		void(__cdecl * mainsub)(ObjectMaster*);
-		ObjectMaster* previous;
-		Bool v5;
-
-		obj_ = ObjectLists[index];
-		objCopy = obj_;
-		if (obj_)
-		{
-			while (1)
-			{
-				mainsub = obj_->MainSub;
-				previous = obj_->PrevObject;
-				CurrentObjectSub = mainsub;
-				if (mainsub)
-				{
-					mainsub(obj_);
-				}
-				v5 = obj_->Child == 0;
-				CurrentObjectSub = 0;
-				if (!v5)
-				{
-					sub_470CC0(obj_);
-				}
-				if (previous == objCopy)
-				{
-					break;
-				}
-				objCopy = ObjectLists[index];
-				if (!objCopy)
-				{
-					break;
-				}
-				obj_ = previous;
-			}
-		}
-	}
-	else
-	{
-		RunObjectIndex_t.Original(index);
-	}
-}
-
-
 void InitMenuHack()
 {
 	LoadCharacters_t.Hook(LoadCharacters_r);
-	RunObjectIndex_t.Hook(RunObjectIndex_r);
 	DeleteLand_t.Hook(DeleteLand_r);
 }
