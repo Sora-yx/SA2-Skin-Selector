@@ -1,12 +1,14 @@
 #pragma once
 
+#pragma pack(push, 1)
+
 struct SkinMenuItem
 {
 	SkinMod data;
 	NJS_POINT2 pos{ 0 };
 	bool isSelected = false;
 	NJS_TEXLIST* coverTexlist = nullptr;
-	std::string text;
+	std::string text = "";
 };
 
 struct SkinMenuCursor
@@ -19,6 +21,7 @@ struct SkinMenuCursor
 	SkinMenuItem* currentItem = nullptr;
 };
 
+
 struct SkinMenuData
 {
 	uint8_t mode = 0;
@@ -27,7 +30,7 @@ struct SkinMenuData
 	uint8_t columnMax = 0;
 	uint8_t pageMax = 0;
 	NJS_POINT2 pos;
-	std::vector<SkinMenuItem> items;
+	SkinMenuItem* items;
 	uint16_t itemCount = 0;
 	uint8_t itemMaxPerPage = 0;
 	uint8_t itemsOnPage = 0;
@@ -44,3 +47,6 @@ bool isMenuOpenByAPlayer();
 
 std::string GetCharTexturePath(const char* texName, std::string folderPath, std::string legacyTexName);
 bool isMenuFullyOpenByAPlayer();
+void ClearMenuData(const uint8_t i);
+
+#pragma pack(pop)

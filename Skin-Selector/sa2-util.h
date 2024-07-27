@@ -1,9 +1,9 @@
 #pragma once
 
-
+#pragma pack(push, 1)
 ObjectFunc(sub_470CC0, 0x470CC0);
 
-#pragma pack(push, 8)
+
 struct TailsCharObj2New
 {
 	CharObj2Base base;
@@ -38,7 +38,7 @@ struct TailsCharObj2New
 	AnimationIndex* MotionList;
 	char field_4BC[36];
 };
-#pragma pack(pop)
+
 
 
 FunctionPointer(void, DrawSubtitlesSA2, (Float a1, const char* hint, int timer, int language, DWORD* a5, int textType), 0x6B7580);
@@ -69,3 +69,5 @@ static inline void LoadEyesTrack(int pnum, NJS_OBJECT** a2)
 		call LoadEyesTrackPtr
 	}
 }
+
+#pragma pack(pop)

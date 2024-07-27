@@ -56,6 +56,10 @@ extern "C" {
 	__declspec(dllexport) void __cdecl OnExit()
 	{
 		SDL2End();
+		for (uint8_t j = 0; j < PMax; j++)
+		{
+			ClearMenuData(j);
+		}
 	}
 
 

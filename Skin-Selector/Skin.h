@@ -1,6 +1,6 @@
 #pragma once
 
-
+#pragma pack(push, 1)
 struct CharInfo
 {
 	std::string mdlName = "";
@@ -45,3 +45,5 @@ void InitEyesTrack(uint8_t charID2, uint8_t pnum);
 void SkinReplaceFiles(const char* folderPath, const uint8_t charID2);
 
 extern bool hdGUI;
+
+#pragma pack(pop)

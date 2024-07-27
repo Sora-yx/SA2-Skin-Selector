@@ -7,6 +7,7 @@
 #include "patches.h"
 #include "save.h"
 
+
 FunctionHook<void> LoadCharacters_t((intptr_t)LoadCharacters);
 
 static NJS_TEXNAME menuTex[27];
@@ -272,11 +273,11 @@ static void DrawBackground(Float posX, Float posY)
 	ResetMaterial();
 }
 
-static void DrawCursor(Float posX, Float posY)
+static void DrawCursor(Float posX, Float posY, const Float scl)
 {
 	NJS_SPRITE _sp;
-	_sp.sx = 1.0f;
-	_sp.sy = 1.0f;
+	_sp.sx = scl;
+	_sp.sy = scl;
 	_sp.p.x = posX;
 	_sp.p.y = posY;
 	_sp.tlist = &menuTexlist;
@@ -288,11 +289,11 @@ static void DrawCursor(Float posX, Float posY)
 	ResetMaterial();
 }
 
-static void DrawLegacyCharIcon(const uint8_t pnum, const uint8_t i, Characters curChar, bool alt = false)
+static void DrawLegacyCharIcon(const uint8_t pnum, const uint8_t i, Characters curChar, Float scl, bool alt = false)
 {
 	NJS_SPRITE _sp;
-	_sp.sx = 1.0f;
-	_sp.sy = 1.0f;
+	_sp.sx = scl;
+	_sp.sy = scl;
 	_sp.p.x = menu[pnum].itemPos[i].x;
 	_sp.p.y = menu[pnum].itemPos[i].y;
 	_sp.tlist = &menuTexlist;
@@ -319,11 +320,11 @@ static void DrawLegacyCharIcon(const uint8_t pnum, const uint8_t i, Characters c
 	ResetMaterial();
 }
 
-static void DrawItemsIcon(const uint8_t pnum, const uint8_t i, const uint16_t itemIndex)
+static void DrawItemsIcon(const uint8_t pnum, const uint8_t i, const uint16_t itemIndex, Float scl)
 {
 	NJS_SPRITE _sp;
-	_sp.sx = 1.0f;
-	_sp.sy = 1.0f;
+	_sp.sx = scl;
+	_sp.sy = scl;
 	_sp.p.x = menu[pnum].itemPos[i].x;
 	_sp.p.y = menu[pnum].itemPos[i].y;
 	const bool isCustomCover = menu[pnum].items[itemIndex].coverTexlist != NULL;
@@ -356,13 +357,13 @@ static void DisplayMenu(const uint8_t pnum)
 	if (menu[pnum].itemCount == 0 || !p || p->Action == Action_LightDash || !pwp || pwp->Powerups & Powerups_Dead)
 		return;
 
-
+	Float Scl = njCos(((unsigned int)(5 * FrameCountIngame) * 182.0f)) * 0.1f + 1.1f;
 	njSetTexture(&menuTexlist);
-
 	DrawBackground(menu[pnum].pos.x, menu[pnum].pos.y);
 	DrawCenteredTitle(pnum, 150, 22);
 	auto index = GetRealMenuItemIndex(pnum);
-	DrawCursor(menu[pnum].itemPos[index].x, menu[pnum].itemPos[index].y);
+	DrawCursor(menu[pnum].itemPos[index].x, menu[pnum].itemPos[index].y, Scl);
+
 	uint8_t itemOnThePage = 0;
 	for (uint8_t i = 0; i < menu[pnum].itemMaxPerPage; i++)
 	{
@@ -370,13 +371,14 @@ static void DisplayMenu(const uint8_t pnum)
 			break;
 
 		const uint16_t itemIndex = i * (menu[pnum].cursor.curPage + 1);
+		Scl = index == i ? njCos(((unsigned int)(5 * FrameCountIngame) * 182.0f)) * 0.1f + 1.1f  : 1.0f;
 		if (isLegacy(menu[pnum].items[itemIndex].data.Type))
 		{
-			DrawLegacyCharIcon(pnum, i, (Characters)pwp->CharID2, menu[pnum].items[itemIndex].data.Type == LegacyAlt);
+			DrawLegacyCharIcon(pnum, i, (Characters)pwp->CharID2, Scl, menu[pnum].items[itemIndex].data.Type == LegacyAlt);
 		}
 		else
 		{
-			DrawItemsIcon(pnum, i, itemIndex);
+			DrawItemsIcon(pnum, i, itemIndex, Scl);
 		}
 
 		itemOnThePage++;
@@ -573,7 +575,6 @@ static void MenuExec(task* tp)
 		}
 		else
 		{
-		
 			menu[pnum].mode = Open;
 			UpdateCursorPos(pnum);
 			menu[pnum].cursor.currentItem = &menu[pnum].items[0];
@@ -583,11 +584,11 @@ static void MenuExec(task* tp)
 	case Open:
 		MenuController(pnum);
 		//PrintDebugValues(pnum);
-		if (menu[pnum].cursor.currentItem)
+		if (menu[pnum].cursor.currentItem && menu[pnum].cursor.currentItem->text != "")
 			DrawSubtitlesSA2(1.0f, menu[pnum].cursor.currentItem->text.c_str(), -1, TextLanguage, 0, 0);
 		break;
 	case ItemSelected:
-		if (++twp->wtimer == 30)
+		if (++twp->wtimer == 15)
 		{
 			menu[pnum].mode = Open;
 			twp->wtimer = 0;
@@ -595,7 +596,7 @@ static void MenuExec(task* tp)
 		break;
 	case Exit:
 		ControllerEnabled[pnum] = true;
-		if ( (pwp->Powerups & Powerups_Dead) == 0)
+		if ((pwp->Powerups & Powerups_Dead) == 0)
 			InitEyesTrack(MainCharObj2[pnum]->CharID2, pnum);
 		if (pwp->AnimInfo.Current != 54)
 		{
@@ -696,22 +697,23 @@ void initMenuItems(const uint8_t pnum)
 	auto p = MainCharacter[pnum]->Data1.Entity;
 	auto pwk = (CharObj2Base*)MainCharacter[pnum]->Data2.Entity;
 
-
 	menu[pnum].currentCharacter = (Characters)pwk->CharID2;
 	menu[pnum].mode = Closed;
 	menu[pnum].pageMax = 1;
 
 	currentSkin[pnum][pwk->CharID2].Character = menu[pnum].currentCharacter;
 
-	int16_t count = 0;
+	uint16_t count = 0;
+	uint16_t index = 0;
+	std::vector<SkinMenuItem> vec;
 
 	for (uint16_t i = 0; i < skinList.size(); i++)
 	{
 		if (skinList.at(i).Character == menu[pnum].currentCharacter)
 		{
-			menu[pnum].items.push_back({ skinList.at(i) });
 			std::string text = "\a" + skinList.at(i).Name + " - " + skinList.at(i).Author;
-			menu[pnum].items.back().text = text;
+			vec.push_back({ skinList.at(i), {0}, false, nullptr, text });
+
 			menu[pnum].itemCount++;
 
 			if (count == menu[pnum].itemMaxPerPage)
@@ -722,17 +724,31 @@ void initMenuItems(const uint8_t pnum)
 			else
 			{
 				count++;
-		}
+			}
 
-			LoadCoverSkinTex(&menu[pnum].items.back());
+			LoadCoverSkinTex(&vec[index]);
+			index++;
 		}
 	}
 
+	if (vec.size() > 0)
+	{
+		SkinMenuItem* ind_arr = new SkinMenuItem[vec.size()];
+		for (int i = 0; i < vec.size(); i++)
+			ind_arr[i] = vec.data()[i];
+
+		menu[pnum].items = ind_arr;
+	}
 }
 
 void ClearMenuData(const uint8_t i)
 {
-	menu[i].items.clear();
+	if (menu[i].itemCount > 0 && menu[i].items)
+	{
+		delete[] menu[i].items;
+		menu[i].items = nullptr;
+		menu[i].itemCount = 0;
+	}
 	memset(&menu[i], 0, sizeof(SkinMenuData));
 }
 
@@ -748,9 +764,9 @@ void BuildMenu(const uint8_t pnum)
 {
 	ClearMenuData(pnum);
 	InitMenuDrawSettings(pnum);
-	BuildBackgroundMenu(pnum, 350.0f, 300.0f); //previously 400-300
+	BuildBackgroundMenu(pnum, 350.0f, 310.0f); //previously 400-300
 	initMenuItems(pnum);
-	BuildItemIconsPos(64.0f, 64.0f, 110.0f, 100.0f); //previously 100-80
+	BuildItemIconsPos(64.0f, 64.0f, 110.0f, 90.0f); //previously 100-80
 }
 
 void InitMenu()
@@ -759,15 +775,10 @@ void InitMenu()
 
 	for (uint8_t j = 0; j < PMax; j++)
 	{
-		ClearMenuData(j);
-		InitMenuDrawSettings(j);
-		BuildBackgroundMenu(j, 350.0f, 300.0f); //previously 400-300
-		initMenuItems(j);
-		BuildItemIconsPos(64.0f, 64.0f, 110.0f, 100.0f); //previously 100-80
-
 		auto p = MainCharObj2[j];
 		if (p)
 		{
+			BuildMenu(j);
 			menuTask[j] = (task*)LoadObject(0, "SkinSelectorTask", (ObjectFuncPtr)MenuExec, LoadObj_Data1 | LoadObj_Data2);
 			menuTask[j]->Data1.twp->id = j;
 			menuTask[j]->dispDelayed3 = MenuDisplay;
