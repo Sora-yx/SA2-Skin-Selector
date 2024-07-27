@@ -362,29 +362,30 @@ static void DisplayMenu(const uint8_t pnum)
 	DrawBackground(menu[pnum].pos.x, menu[pnum].pos.y);
 	DrawCenteredTitle(pnum, 150, 22);
 	auto index = GetRealMenuItemIndex(pnum);
-	DrawCursor(menu[pnum].itemPos[index].x, menu[pnum].itemPos[index].y, Scl);
+	DrawCursor(menu[pnum].itemPos[index - (menu[pnum].itemMaxPerPage * menu[pnum].cursor.curPage)].x, menu[pnum].itemPos[index - (menu[pnum].itemMaxPerPage * menu[pnum].cursor.curPage)].y, Scl);
+	uint8_t itemCountOnPage = 0;
 
-	uint8_t itemOnThePage = 0;
-	for (uint8_t i = 0; i < menu[pnum].itemMaxPerPage; i++)
+	for (uint8_t i = 0 + menu[pnum].itemMaxPerPage * menu[pnum].cursor.curPage; i < menu[pnum].itemCount; i++)
 	{
-		if (i >= menu[pnum].itemCount)
+		const uint16_t itemIndexPos = i - (menu[pnum].itemMaxPerPage * menu[pnum].cursor.curPage);
+
+		if (itemIndexPos >= menu[pnum].itemMaxPerPage)
 			break;
 
-		const uint16_t itemIndex = i * (menu[pnum].cursor.curPage + 1);
 		Scl = index == i ? njCos(((unsigned int)(5 * FrameCountIngame) * 182.0f)) * 0.1f + 1.1f  : 1.0f;
-		if (isLegacy(menu[pnum].items[itemIndex].data.Type))
+		if (isLegacy(menu[pnum].items[i].data.Type))
 		{
-			DrawLegacyCharIcon(pnum, i, (Characters)pwp->CharID2, Scl, menu[pnum].items[itemIndex].data.Type == LegacyAlt);
+			DrawLegacyCharIcon(pnum, itemIndexPos, (Characters)pwp->CharID2, Scl, menu[pnum].items[itemIndexPos].data.Type == LegacyAlt);
 		}
 		else
 		{
-			DrawItemsIcon(pnum, i, itemIndex, Scl);
+			DrawItemsIcon(pnum, itemIndexPos, itemIndexPos, Scl);
 		}
 
-		itemOnThePage++;
+		itemCountOnPage++;
 	}
 
-	menu[pnum].itemsOnPage = itemOnThePage;
+	menu[pnum].itemsOnPage = itemCountOnPage;
 }
 
 static void MenuDisplay(task* tp)
@@ -400,7 +401,7 @@ static void MenuDisplay(task* tp)
 
 static void MenuController(const uint8_t pnum)
 {
-	const uint16_t lastSlot = GetMaxIndex(pnum);
+	const uint16_t lastSlot = menu[pnum].itemsOnPage - 1;
 	auto curChar = menu[pnum].currentCharacter;
 
 	if (MenuButtons_Pressed[pnum] & Buttons_Up)
@@ -415,7 +416,8 @@ static void MenuController(const uint8_t pnum)
 			}
 			else
 			{
-				menu[pnum].cursor.curRow = menu[pnum].rowMax - 1;
+				if (menu[pnum].cursor.curRow < menu[pnum].rowMax - 1 && GetRealMenuItemIndex(pnum) + 1 <= GetMaxIndex(pnum))
+					menu[pnum].cursor.curRow = menu[pnum].rowMax - 1;
 			}
 		}
 		else
@@ -437,9 +439,10 @@ static void MenuController(const uint8_t pnum)
 		{
 			const int nextIndex = GetNextIndex(pnum, menu[pnum].cursor.curRow + 1, menu[pnum].cursor.curColumn);
 
+	
 			if (nextIndex < lastSlot)
 			{
-				if (menu[pnum].cursor.curRow < menu[pnum].rowMax - 1)
+				if (menu[pnum].cursor.curRow < menu[pnum].rowMax - 1 && GetRealMenuItemIndex(pnum) + 1 <= GetMaxIndex(pnum))
 					menu[pnum].cursor.curRow++;
 			}
 			else
@@ -459,7 +462,8 @@ static void MenuController(const uint8_t pnum)
 			if (menu[pnum].cursor.curPage > 0)
 			{
 				menu[pnum].cursor.curPage--;
-				return;
+				menu[pnum].cursor.curColumn = 0;
+				menu[pnum].cursor.curRow = 0;
 			}
 			else //if first item on the left side
 			{
@@ -487,7 +491,11 @@ static void MenuController(const uint8_t pnum)
 			menu[pnum].cursor.curColumn = 0; //swap to new page if it exists and reset index to 0
 
 			if (menu[pnum].cursor.curPage < menu[pnum].pageMax - 1)
+			{
 				menu[pnum].cursor.curPage++;
+				menu[pnum].cursor.curColumn = 0;
+				menu[pnum].cursor.curRow = 0;
+			}
 		}
 		else
 		{
@@ -583,7 +591,7 @@ static void MenuExec(task* tp)
 		break;
 	case Open:
 		MenuController(pnum);
-		//PrintDebugValues(pnum);
+
 		if (menu[pnum].cursor.currentItem && menu[pnum].cursor.currentItem->text != "")
 			DrawSubtitlesSA2(1.0f, menu[pnum].cursor.currentItem->text.c_str(), -1, TextLanguage, 0, 0);
 		break;
