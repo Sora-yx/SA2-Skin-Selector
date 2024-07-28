@@ -39,6 +39,39 @@ struct TailsCharObj2New
 	char field_4BC[36];
 };
 
+struct pheadeyewk
+{
+	uint8_t idk;
+	uint8_t pnum;
+	int angy_head;
+	int angz_head;
+	int angy_ahead;
+	int angz_ahead;
+	int angy_eye;
+	int angz_eye;
+	int angy_leye;
+	int angz_leye;
+	int angy_reye;
+	int angz_reye;
+	int angy_head_max;
+	int angy_head_min;
+	int angz_head_max;
+	int angz_head_min;
+	int angy_leye_max;
+	int angy_leye_min;
+	int angz_leye_max;
+	int angz_leye_min;
+	int angy_reye_max;
+	int angy_reye_min;
+	int angz_reye_max;
+	int angz_reye_min;
+	obj* headobjptr;
+	obj* leyeobjptr;
+	obj* reyeobjptr;
+	char orghead[0xC]; //I'm lazy
+	char orgleye[0xC];
+	char orgreye[0xC];
+};
 
 
 FunctionPointer(void, DrawSubtitlesSA2, (Float a1, const char* hint, int timer, int language, DWORD* a5, int textType), 0x6B7580);

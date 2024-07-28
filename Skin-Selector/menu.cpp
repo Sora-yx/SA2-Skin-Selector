@@ -9,6 +9,7 @@
 
 
 FunctionHook<void> LoadCharacters_t((intptr_t)LoadCharacters);
+FunctionHook<void> FinalHazard_Init_t((intptr_t)FinalHazard_Init);
 
 static NJS_TEXNAME menuTex[27];
 static NJS_TEXLIST menuTexlist{ arrayptrandlengthT(menuTex, Uint32) };
@@ -372,7 +373,7 @@ static void DisplayMenu(const uint8_t pnum)
 		if (itemIndexPos >= menu[pnum].itemMaxPerPage)
 			break;
 
-		Scl = index == i ? njCos(((unsigned int)(5 * FrameCountIngame) * 182.0f)) * 0.1f + 1.1f  : 1.0f;
+		Scl = index == i ? njCos(((unsigned int)(5 * FrameCountIngame) * 182.0f)) * 0.1f + 1.1f : 1.0f;
 		if (isLegacy(menu[pnum].items[i].data.Type))
 		{
 			DrawLegacyCharIcon(pnum, itemIndexPos, (Characters)pwp->CharID2, Scl, menu[pnum].items[itemIndexPos].data.Type == LegacyAlt);
@@ -439,7 +440,6 @@ static void MenuController(const uint8_t pnum)
 		{
 			const int nextIndex = GetNextIndex(pnum, menu[pnum].cursor.curRow + 1, menu[pnum].cursor.curColumn);
 
-	
 			if (nextIndex < lastSlot)
 			{
 				if (menu[pnum].cursor.curRow < menu[pnum].rowMax - 1 && GetRealMenuItemIndex(pnum) + 1 <= GetMaxIndex(pnum))
@@ -549,7 +549,8 @@ static void MenuExec(task* tp)
 
 	const auto charID2 = pwp->CharID2;
 
-	if (pwp->Powerups & Powerups_Dead || pwp->Upgrades & Upgrades_SuperSonic && charID2 != Characters_SuperShadow && charID2 != Characters_SuperSonic)
+
+	if (pwp->Powerups & Powerups_Dead)
 	{
 		if (menu[pnum].mode != Closed)
 			menu[pnum].mode = Exit;
@@ -562,18 +563,16 @@ static void MenuExec(task* tp)
 	case Closed:
 		if (isOpeningMenu(pnum) && !isCallbackRunning)
 		{
-			if (charID2 != menuChar)
-			{
-				menu[pnum].mode = Reset;
-				break;
-			}
-
 			TimerStopped = 1;
 			PauseDisabled = 1;
-			deleteEyeTracker = true;
-			ControllerEnabled[pnum] = false;
-			menu[pnum].mode = Init;
+			deleteEyeTracker[pnum] = true;
+			if (CurrentLevel != LevelIDs_FinalHazard)
+				ControllerEnabled[pnum] = false;
 
+			if (charID2 != menuChar)
+				menu[pnum].mode = Reset;
+			else
+				menu[pnum].mode = Init;
 		}
 		break;
 	case Init:
@@ -618,45 +617,44 @@ static void MenuExec(task* tp)
 		break;
 	case Reset:
 		BuildMenu(pnum);
-		menu[pnum].mode = Closed;
+		menu[pnum].mode = Init;
 		break;
 	}
 }
 
-void BuildItemIconsPos(Float x, Float y, Float widthOffset, Float heightOffset)
+void BuildItemIconsPos(const uint8_t pnum, Float x, Float y, Float widthOffset, Float heightOffset)
 {
 	Float backupX = x;
 	uint16_t count = 0;
 
-	for (uint8_t j = 0; j < PMax; j++)
+
+	for (uint8_t i = 0; i < LengthOfArray(menu[pnum].itemPos); i++)
 	{
-		for (uint8_t i = 0; i < LengthOfArray(menu[j].itemPos); i++)
+		menu[pnum].itemPos[i].x = menu[pnum].pos.x + x;
+		x += widthOffset;
+		count++;
+
+		if (count == menu[pnum].columnMax)
 		{
-			menu[j].itemPos[i].x = menu[j].pos.x + x;
-			x += widthOffset;
-			count++;
-
-			if (count == menu[j].columnMax)
-			{
-				x = backupX;
-				count = 0;
-			}
-		}
-
-		count = 0;
-
-		for (uint8_t i = 0; i < LengthOfArray(menu[j].itemPos); i++)
-		{
-			menu[j].itemPos[i].y = menu[j].pos.y + y;
-			count++;
-
-			if (count == menu[j].rowMax)
-			{
-				y += heightOffset;
-				count = 0;
-			}
+			x = backupX;
+			count = 0;
 		}
 	}
+
+	count = 0;
+
+	for (uint8_t i = 0; i < LengthOfArray(menu[pnum].itemPos); i++)
+	{
+		menu[pnum].itemPos[i].y = menu[pnum].pos.y + y;
+		count++;
+
+		if (count == menu[pnum].rowMax)
+		{
+			y += heightOffset;
+			count = 0;
+		}
+	}
+
 }
 
 
@@ -704,12 +702,13 @@ void initMenuItems(const uint8_t pnum)
 
 	auto p = MainCharacter[pnum]->Data1.Entity;
 	auto pwk = (CharObj2Base*)MainCharacter[pnum]->Data2.Entity;
+	auto curChar = (Characters)pwk->CharID2;
 
-	menu[pnum].currentCharacter = (Characters)pwk->CharID2;
 	menu[pnum].mode = Closed;
 	menu[pnum].pageMax = 1;
 
-	currentSkin[pnum][pwk->CharID2].Character = menu[pnum].currentCharacter;
+	currentSkin[pnum][pwk->CharID2].Character = curChar;
+	menu[pnum].currentCharacter = curChar;
 
 	uint16_t count = 0;
 	uint16_t index = 0;
@@ -741,11 +740,11 @@ void initMenuItems(const uint8_t pnum)
 
 	if (vec.size() > 0)
 	{
-		SkinMenuItem* ind_arr = new SkinMenuItem[vec.size()];
-		for (int i = 0; i < vec.size(); i++)
-			ind_arr[i] = vec.data()[i];
+		SkinMenuItem* skin_arr = new SkinMenuItem[vec.size()];
+		for (uint16_t i = 0; i < vec.size(); i++)
+			skin_arr[i] = vec.at(i);
 
-		menu[pnum].items = ind_arr;
+		menu[pnum].items = skin_arr;
 	}
 }
 
@@ -774,7 +773,7 @@ void BuildMenu(const uint8_t pnum)
 	InitMenuDrawSettings(pnum);
 	BuildBackgroundMenu(pnum, 350.0f, 310.0f); //previously 400-300
 	initMenuItems(pnum);
-	BuildItemIconsPos(64.0f, 64.0f, 110.0f, 90.0f); //previously 100-80
+	BuildItemIconsPos(pnum, 64.0f, 64.0f, 110.0f, 90.0f); //previously 100-80
 }
 
 void InitMenu()
@@ -784,6 +783,7 @@ void InitMenu()
 	for (uint8_t j = 0; j < PMax; j++)
 	{
 		auto p = MainCharObj2[j];
+
 		if (p)
 		{
 			BuildMenu(j);
@@ -794,6 +794,12 @@ void InitMenu()
 	}
 }
 
+void FinalHazard_Init_r()
+{
+	FinalHazard_Init_t.Original();
+	InitMenu();
+}
+
 void LoadCharacters_r()
 {
 	LoadCharacters_t.Original();
@@ -802,7 +808,7 @@ void LoadCharacters_r()
 	{
 		for (uint8_t j = 0; j < CharMax; j++)
 		{
-			if (currentSkin[i][j].Name == "")
+			if (currentSkin[i][j].Name == "") //is current skin empty
 			{
 				for (uint8_t k = 0; k < skinList.size(); k++)
 				{
@@ -816,11 +822,14 @@ void LoadCharacters_r()
 		}
 	}
 
-	InitMenu();
+	if (CurrentLevel != LevelIDs_FinalHazard)
+		InitMenu();
 }
+
 
 void InitMenuHack()
 {
 	LoadCharacters_t.Hook(LoadCharacters_r);
+	FinalHazard_Init_t.Hook(FinalHazard_Init_r);
 	DeleteLand_t.Hook(DeleteLand_r);
 }

@@ -1146,7 +1146,7 @@ static void FillCharInfo(SkinMod* mod)
 	}
 }
 
-void ScanSuperFormSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinMod* info)
+static void ScanSuperFormSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinMod* info)
 {
 	auto charID2 = info->Character;
 	if (charID2 == Characters_Sonic)
@@ -1181,7 +1181,7 @@ void ScanSuperFormSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, 
 	}
 }
 
-void ScanAltSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinMod* info)
+static void ScanAltSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinMod* info)
 {
 	std::string Folder = gdPCMod;
 
@@ -1205,6 +1205,8 @@ void ScanAltSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinMo
 	case Characters_Rouge:
 		Folder += RougeLegacyInfo[1].mdlName;
 		break;
+	default:
+		return;
 	}
 
 	if (DirectoryExists(normalizePath(Folder.c_str())))
@@ -1221,7 +1223,7 @@ void ScanAltSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinMo
 }
 
 
-void ScanMechSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinMod* info)
+static void ScanMechSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinMod* info)
 {
 	auto charID2 = info->Character;
 	if (charID2 == Characters_Tails)
@@ -1233,7 +1235,6 @@ void ScanMechSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinM
 			info2 = *info;
 			info2.Character = Characters_MechTails;
 			info2.Name = "Mech " + info->Name;
-			info2.Cover = "mechT";
 			info2.uniqueID++;
 			FillCharInfo(&info2);
 			list.push_back(info2);
@@ -1249,7 +1250,6 @@ void ScanMechSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinM
 			info2 = *info;
 			info2.Character = Characters_MechEggman;
 			info2.Name = "Mech " + info->Name;
-			info2.Cover = "mechE";
 			info2.uniqueID++;
 			FillCharInfo(&info2);
 			list.push_back(info2);
@@ -1258,9 +1258,7 @@ void ScanMechSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinM
 	}
 }
 
-
-
-void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& list)
+static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& list)
 {
 	srcPath = normalizePath(srcPath.c_str());
 	WIN32_FIND_DATAA data;

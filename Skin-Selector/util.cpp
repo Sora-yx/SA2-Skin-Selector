@@ -149,3 +149,8 @@ bool is_number(const std::string& s)
 	return !s.empty() && std::find_if(s.begin(),
 		s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
 }
+
+bool isSuper(CharObj2Base* pwp)
+{
+	return ( (pwp->Upgrades & Upgrades_SuperSonic) && (pwp->CharID2 == Characters_Sonic || pwp->CharID2 == Characters_Shadow));
+}

@@ -2,5 +2,5 @@
 
 extern bool DeleteHomingAttackEffect;
 
-extern bool deleteEyeTracker;
+extern bool deleteEyeTracker[PMax];
 void InitPatches();

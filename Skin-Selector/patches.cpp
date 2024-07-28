@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "menu.h"
 
-bool deleteEyeTracker = false;
 bool DeleteHomingAttackEffect = false;
+bool deleteEyeTracker[PMax] = { false };
 
 TaskHook EyeTracker_t(0x4766C0);
 UsercallFuncVoid(DoHomingAttackEffect_t,
@@ -11,8 +11,31 @@ UsercallFuncVoid(DoHomingAttackEffect_t,
 TaskHook HomingDashAuraDisp_t(0x757040);
 TaskHook CameraMain_t(cameraCons_Main);
 FunctionHook<void, int> RunObjectIndex_t(RunObjectIndex);
+TaskHook LastBossPlayerManager_t(LastBossPlayerManager);
 
-//don't make the camera runs during menu
+//delete eyes tracker to avoid crash when swapping character
+void EyeTracker_r(ObjectMaster* tp)
+{
+	for (uint8_t i = 0; i < PMax; i++)
+	{
+		if (deleteEyeTracker[i])
+		{
+			pheadeyewk* eyewk = (pheadeyewk*)tp->EntityData2;
+			if (eyewk && eyewk->pnum == i)
+			{
+				FreeTask(tp);
+				deleteEyeTracker[i] = false;
+				return;
+			}
+		}
+	}
+
+	EyeTracker_t.Original(tp);
+}
+
+
+
+//don't make the camera runs during menu to avoid it randomly moving when opening the menu
 void CameraMain_r(ObjectMaster* tp)
 {
 	if (isMenuFullyOpenByAPlayer())
@@ -21,18 +44,7 @@ void CameraMain_r(ObjectMaster* tp)
 	CameraMain_t.Original(tp);
 }
 
-void EyeTracker_r(ObjectMaster* tp)
-{
-	if (deleteEyeTracker)
-	{
-		FreeTask(tp);
-		deleteEyeTracker = false;
-		return;
-	}
-
-	EyeTracker_t.Original(tp);
-}
-
+//series of hack to delete all the homing dash / attack effect to run and avoid crash with textures swap
 void DoHomingAttackEffect_r(SonicCharObj2* a1, EntityData1* a2, EntityData2* a3, CharObj2Base* co2)
 {
 	if (DeleteHomingAttackEffect)
@@ -77,7 +89,9 @@ FunctionHook<void, NJS_OBJECT*, int(__cdecl*)(NJS_CNK_MODEL*)>ProcessChunkModels
 void __cdecl ProcessChunkModelsWithCallback_r(NJS_OBJECT* object, int(__cdecl* callback)(NJS_CNK_MODEL*))
 {
 	if (isMenuOpenByAPlayer())
+	{
 		return;
+	}
 	else if (isMenuOpenByAPlayer() == false && !isModelFromCharacter(object) && !isAura)
 	{
 		return;
@@ -86,6 +100,27 @@ void __cdecl ProcessChunkModelsWithCallback_r(NJS_OBJECT* object, int(__cdecl* c
 	isCallbackRunning = true;
 	ProcessChunkModelsWithCallback(object, callback);
 	isCallbackRunning = false;
+}
+
+//pause finalhazard task so players don't drop ring if menu is open
+void LastBossPlayerManager_r(ObjectMaster* tp)
+{
+	if (isMenuFullyOpenByAPlayer())
+	{
+		if (ControllerEnabled[1] == 1)
+		{
+			memcpy(&Controllers[1], ControllerPointers[0], sizeof(PDS_PERIPHERAL));
+			memcpy(&MenuButtons_Pressed[1], &MenuButtons_Pressed[0], sizeof(int));
+			memcpy(&MenuButtons_Held[1], &MenuButtons_Held[0], sizeof(int));
+			WriteAnalogs();
+			UpdateUselessButtonPressBooleans();
+		}
+
+		return;
+	}
+	
+
+	LastBossPlayerManager_t.Original(tp);
 }
 
 //Prevent most tasks of the game to run when the menu is open so we can pause the game and avoid crash when swapping skins
@@ -147,6 +182,7 @@ void InitPatches()
 	EyeTracker_t.Hook(EyeTracker_r);
 	HomingDashAuraDisp_t.Hook(HomingAuraDisp_r);
 	CameraMain_t.Hook(CameraMain_r);
+	LastBossPlayerManager_t.Hook(LastBossPlayerManager_r);
 
 	WriteCall((void*)0x75668B, ProcessChunkModelsWithCallback_r); //homing aura display
 	WriteCall((void*)0x756A2E, ProcessChunkModelsWithCallback_r); //jump aura display
