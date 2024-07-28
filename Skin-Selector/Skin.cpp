@@ -10,7 +10,7 @@
 std::vector<SkinMod> skinList;
 SkinMod currentSkin[PMax][CharMax];
 
-CharInfo SonicLegacyInfo[3] =
+CharInfo SonicLegacyInfo[] =
 {
 	{ "SONICMDL", "SONICTEX", "SONICMTN", "s_efftex", "zanki_sonic", "itemp_1up"},
 	{ "SONIC1MDL", "SONIC1TEX", "SONICMTN", "s_efftex", "zanki_sonic", "itemp_1up"},
@@ -204,6 +204,16 @@ static SkinMenuItem* GetSelectedSkin(const uint8_t pnum)
 	return nullptr;
 }
 
+
+bool isLegacy(SkinType type)
+{
+	return type == Legacy || type == LegacyAlt;
+}
+
+bool isAlt(SkinType type)
+{
+	return type == Alt || type == LegacyAlt;
+}
 
 std::string GetPakOrPrsTexture(const char* folderPath, const char* texName)
 {
@@ -676,7 +686,7 @@ static void DoSpeedCharsSwap(SkinMod* skin, SonicCharObj2* sCo2, const uint8_t p
 		ReleaseMDLFile(sCo2->ModelList);
 		sCo2->ModelList = LoadMDLFile((char*)mdlName.c_str());
 
-		if (skin->Type == LegacyAlt)
+		if (isAlt(skin->Type))
 			sCo2->base.Costume = 1;
 		else
 			sCo2->base.Costume = 0;
@@ -834,7 +844,7 @@ static void DoKnuxRougeSwap(SkinMod* skin, KnucklesCharObj2* kCo2, const uint8_t
 		ReleaseMDLFile(kCo2->ModelList);
 		kCo2->ModelList = LoadMDLFile((char*)mdlName.c_str());
 
-		if (skin->Type == LegacyAlt)
+		if (isAlt(skin->Type))
 			kCo2->base.Costume = 1;
 		else
 			kCo2->base.Costume = 0;
@@ -883,7 +893,7 @@ static void DoMechSwap(SkinMod* skin, MechEggmanCharObj2* meCo2, const uint8_t p
 		ReleaseMDLFile(meCo2->ModelList);
 		meCo2->ModelList = LoadMDLFile((char*)mdlName.c_str());
 
-		if (skin->Type == LegacyAlt)
+		if (isAlt(skin->Type))
 			meCo2->base.Costume = 1;
 		else
 			meCo2->base.Costume = 0;
@@ -1086,22 +1096,16 @@ void SwapSkin(const uint8_t pnum)
 }
 
 
-bool isLegacy(SkinType type)
-{
-	return type == Legacy || type == LegacyAlt;
-}
-
 static void FillCharInfo(SkinMod* mod)
 {
-
-	const bool isAlt = isLegacy(mod->Type);
+	const bool Alt = isAlt(mod->Type);
 	switch (mod->Character)
 	{
 	case Characters_Sonic:
-		mod->Extra = isAlt ? SonicLegacyInfo[1] : SonicLegacyInfo[0];
+		mod->Extra = Alt ? SonicLegacyInfo[1] : SonicLegacyInfo[0];
 		break;
 	case Characters_Shadow:
-		mod->Extra = isAlt ? ShadowLegacyInfo[1] : ShadowLegacyInfo[0];
+		mod->Extra = Alt ? ShadowLegacyInfo[1] : ShadowLegacyInfo[0];
 		break;
 	case Characters_Tails:
 		mod->Extra = MilesLegacyInfo;
@@ -1110,16 +1114,16 @@ static void FillCharInfo(SkinMod* mod)
 		mod->Extra = EggmanLegacyInfo;
 		break;
 	case Characters_Knuckles:
-		mod->Extra = isAlt ? KnuxLegacyInfo[1] : KnuxLegacyInfo[0];
+		mod->Extra = Alt ? KnuxLegacyInfo[1] : KnuxLegacyInfo[0];
 		break;
 	case Characters_Rouge:
-		mod->Extra = isAlt ? RougeLegacyInfo[1] : RougeLegacyInfo[0];
+		mod->Extra = Alt ? RougeLegacyInfo[1] : RougeLegacyInfo[0];
 		break;
 	case Characters_MechTails:
-		mod->Extra = isAlt ? MechTailsLegacyInfo[1] : MechTailsLegacyInfo[0];
+		mod->Extra = Alt ? MechTailsLegacyInfo[1] : MechTailsLegacyInfo[0];
 		break;
 	case Characters_MechEggman:
-		mod->Extra = isAlt ? MechEggmanLegacyInfo[1] : MechEggmanLegacyInfo[0];
+		mod->Extra = Alt ? MechEggmanLegacyInfo[1] : MechEggmanLegacyInfo[0];
 		break;
 	case Characters_Amy:
 		mod->Extra = AmyLegacyInfo;
@@ -1141,6 +1145,119 @@ static void FillCharInfo(SkinMod* mod)
 		break;
 	}
 }
+
+void ScanSuperFormSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinMod* info)
+{
+	auto charID2 = info->Character;
+	if (charID2 == Characters_Sonic)
+	{
+		std::string SSFolder = gdPCMod + SSLegacyInfo.mdlName;
+		if (DirectoryExists(normalizePath(SSFolder.c_str())))
+		{
+			SkinMod info2{};
+			info2 = *info;
+			info2.Character = Characters_SuperSonic;
+			info2.Name = "Super " + info->Name;
+			info2.Cover = "CoverSS";
+			info2.uniqueID++;
+			FillCharInfo(&info2);
+			list.push_back(info2);
+		}
+	}
+	else if (charID2 == Characters_Shadow)
+	{
+		std::string SSHFolder = gdPCMod + SSHLegacyInfo.mdlName;
+		if (DirectoryExists(normalizePath(SSHFolder.c_str())))
+		{
+			SkinMod info2{};
+			info2 = *info;
+			info2.Character = Characters_SuperShadow;
+			info2.Name = "Super " + info->Name;
+			info2.Cover = "CoverSSH";
+			info2.uniqueID++;
+			FillCharInfo(&info2);
+			list.push_back(info2);
+		}
+	}
+}
+
+void ScanAltSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinMod* info)
+{
+	std::string Folder = gdPCMod;
+
+	switch (info->Character)
+	{
+	case Characters_Sonic:
+		Folder += SonicLegacyInfo[1].mdlName;
+		break;
+	case Characters_Shadow:
+		Folder += ShadowLegacyInfo[1].mdlName;
+		break;
+	case Characters_MechTails:
+		Folder += MechTailsLegacyInfo[1].mdlName;
+		break;
+	case Characters_MechEggman:
+		Folder += MechEggmanLegacyInfo[1].mdlName;
+		break;
+	case Characters_Knuckles:
+		Folder += KnuxLegacyInfo[1].mdlName;
+		break;
+	case Characters_Rouge:
+		Folder += RougeLegacyInfo[1].mdlName;
+		break;
+	}
+
+	if (DirectoryExists(normalizePath(Folder.c_str())))
+	{
+		SkinMod info2{};
+		info2 = *info;
+		info2.Type = Alt;
+		info2.Name += " (Alt)";
+		info2.Cover = "CoverAlt";
+		info2.uniqueID++;
+		FillCharInfo(&info2);
+		list.push_back(info2);
+	}
+}
+
+
+void ScanMechSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list, SkinMod* info)
+{
+	auto charID2 = info->Character;
+	if (charID2 == Characters_Tails)
+	{
+		std::string MechFolder = gdPCMod + MechTailsLegacyInfo[0].mdlName;
+		if (DirectoryExists(normalizePath(MechFolder.c_str())))
+		{
+			SkinMod info2{};
+			info2 = *info;
+			info2.Character = Characters_MechTails;
+			info2.Name = "Mech " + info->Name;
+			info2.Cover = "mechT";
+			info2.uniqueID++;
+			FillCharInfo(&info2);
+			list.push_back(info2);
+			ScanAltSubDirectory(gdPCMod, list, &info2);
+		}
+	}
+	else if (charID2 == Characters_Eggman)
+	{
+		std::string SSHFolder = gdPCMod + SSHLegacyInfo.mdlName;
+		if (DirectoryExists(normalizePath(SSHFolder.c_str())))
+		{
+			SkinMod info2{};
+			info2 = *info;
+			info2.Character = Characters_MechEggman;
+			info2.Name = "Mech " + info->Name;
+			info2.Cover = "mechE";
+			info2.uniqueID++;
+			FillCharInfo(&info2);
+			list.push_back(info2);
+			ScanAltSubDirectory(gdPCMod, list, &info2);
+		}
+	}
+}
+
 
 
 void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& list)
@@ -1187,7 +1304,6 @@ void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& list)
 				break;
 			}
 
-
 			toLowercase(s);
 			SkinMod info{};
 			info.Character = (Characters)getCharacterValue(s);
@@ -1212,8 +1328,11 @@ void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& list)
 			info.uniqueID = (uint16_t)skinList.size() + 1;
 			list.push_back(info);
 
-			//logic for mech and super
+			const std::string gdPCMod = info.FolderPath + "\\gd_PC\\";
 
+			ScanSuperFormSubDirectory(gdPCMod, list, &info);
+			ScanMechSubDirectory(gdPCMod, list, &info);
+			ScanAltSubDirectory(gdPCMod, list, &info);
 			delete skin;
 			break;
 		}
