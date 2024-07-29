@@ -3,6 +3,7 @@
 #include "menu.h"
 #include <FileSystem.h>
 #include <algorithm>
+#include <filesystem>
 
 TaskHook SonicDelete_t(Sonic_Delete);
 TaskHook MilesDelete_t(Tails_Delete);
@@ -21,7 +22,9 @@ static void LoadSavedSkin(const uint8_t pnum, const uint8_t charID2)
 
 void Save(const uint8_t pnum, const uint8_t charID2)
 {
-	const std::string inipath = modPath + "\\skins\\savedata\\" + "Player" + std::to_string(pnum) + ".ini";
+	const std::string folderPath = modPath + "\\skins\\savedata";
+	std::filesystem::create_directories(folderPath);
+	const std::string inipath = folderPath + "\\Player" + std::to_string(pnum) + ".ini";
 	const std::string charIDS = std::to_string(charID2);
 	IniFile* skin = new IniFile(inipath);
 
@@ -112,10 +115,13 @@ void Super_Delete_r(ObjectMaster* obj)
 
 void initSave()
 {
-	SonicDelete_t.Hook(SonicDelete_r);
-	MilesDelete_t.Hook(MilesDelete_r);
-	EggmanDelete_t.Hook(EggmanDelete_r);
-	KnuxDelete_t.Hook(KnuxDelete_r);
-	MechDelete_t.Hook(MechDelete_r);
-	SuperDelete_t.Hook(Super_Delete_r);
+	if (saveSkin)
+	{
+		SonicDelete_t.Hook(SonicDelete_r);
+		MilesDelete_t.Hook(MilesDelete_r);
+		EggmanDelete_t.Hook(EggmanDelete_r);
+		KnuxDelete_t.Hook(KnuxDelete_r);
+		MechDelete_t.Hook(MechDelete_r);
+		SuperDelete_t.Hook(Super_Delete_r);
+	}
 }

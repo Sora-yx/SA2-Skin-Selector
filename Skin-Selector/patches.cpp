@@ -13,6 +13,7 @@ TaskHook CameraMain_t(cameraCons_Main);
 FunctionHook<void, int> RunObjectIndex_t(RunObjectIndex);
 TaskHook LastBossPlayerManager_t(LastBossPlayerManager);
 
+
 //delete eyes tracker to avoid crash when swapping character
 void EyeTracker_r(ObjectMaster* tp)
 {

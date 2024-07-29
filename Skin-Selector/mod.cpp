@@ -7,6 +7,7 @@
 #include "patches.h"
 #include <direct.h>	
 #include "save.h"
+#include "Jiggle.h"
 
 HelperFunctions HelperFunctionsGlobal;
 std::string modName = "Skin Selector";
@@ -42,7 +43,7 @@ extern "C" {
 		InitPatches();
 		std::string s = build_mod_path(path, "SDL2.dll");
 		initSDL2(s.c_str());
-
+		InitJiggleHacks();
 		initSave();
 
 	}

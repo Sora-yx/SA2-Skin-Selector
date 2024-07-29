@@ -6,7 +6,7 @@
 #include "input.h"
 #include "patches.h"
 #include "save.h"
-
+#include "Jiggle.h"
 
 FunctionHook<void> LoadCharacters_t((intptr_t)LoadCharacters);
 FunctionHook<void> FinalHazard_Init_t((intptr_t)FinalHazard_Init);
@@ -326,9 +326,9 @@ static void DrawItemsIcon(const uint8_t pnum, const uint8_t i, const uint16_t it
 	NJS_SPRITE _sp;
 	_sp.sx = scl;
 	_sp.sy = scl;
-	_sp.p.x = menu[pnum].itemPos[i].x;
-	_sp.p.y = menu[pnum].itemPos[i].y;
-	const bool isCustomCover = menu[pnum].items[itemIndex].coverTexlist != NULL;
+	_sp.p.x = menu[pnum].itemPos[itemIndex].x;
+	_sp.p.y = menu[pnum].itemPos[itemIndex].y;
+	const bool isCustomCover = menu[pnum].items[i].coverTexlist != NULL;
 	if (isCustomCover == false)
 	{
 		_sp.tlist = &menuTexlist;
@@ -336,7 +336,7 @@ static void DrawItemsIcon(const uint8_t pnum, const uint8_t i, const uint16_t it
 	}
 	else
 	{
-		_sp.tlist = menu[pnum].items[itemIndex].coverTexlist;
+		_sp.tlist = menu[pnum].items[i].coverTexlist;
 		_sp.tanim = &menuCustomIconTexAnim;
 	}
 
@@ -380,7 +380,7 @@ static void DisplayMenu(const uint8_t pnum)
 		}
 		else
 		{
-			DrawItemsIcon(pnum, itemIndexPos, itemIndexPos, Scl);
+			DrawItemsIcon(pnum, i, itemIndexPos, Scl);
 		}
 
 		itemCountOnPage++;
@@ -547,27 +547,25 @@ static void MenuExec(task* tp)
 	if (GameState != GameStates_Ingame || menu[pnum].itemCount == 0 || !p || p->Action == Action_LightDash || !pwp)
 		return;
 
-	const auto charID2 = pwp->CharID2;
-
-
 	if (pwp->Powerups & Powerups_Dead)
 	{
 		if (menu[pnum].mode != Closed)
 			menu[pnum].mode = Exit;
 	}
 
+
+
+	const auto charID2 = pwp->CharID2;
 	const auto menuChar = menu[pnum].currentCharacter;
 
 	switch (menu[pnum].mode)
 	{
 	case Closed:
-		if (isOpeningMenu(pnum) && !isCallbackRunning)
+		if (isOpeningMenu(pnum) && !isCallbackRunning && !isSuper(pwp))
 		{
 			TimerStopped = 1;
 			PauseDisabled = 1;
 			deleteEyeTracker[pnum] = true;
-			if (CurrentLevel != LevelIDs_FinalHazard)
-				ControllerEnabled[pnum] = false;
 
 			if (charID2 != menuChar)
 				menu[pnum].mode = Reset;
@@ -582,6 +580,8 @@ static void MenuExec(task* tp)
 		}
 		else
 		{
+			if (CurrentLevel != LevelIDs_FinalHazard)
+				ControllerEnabled[pnum] = false;
 			menu[pnum].mode = Open;
 			UpdateCursorPos(pnum);
 			menu[pnum].cursor.currentItem = &menu[pnum].items[0];
@@ -589,10 +589,11 @@ static void MenuExec(task* tp)
 		}
 		break;
 	case Open:
-		MenuController(pnum);
 
-		if (menu[pnum].cursor.currentItem && menu[pnum].cursor.currentItem->text != "")
-			DrawSubtitlesSA2(1.0f, menu[pnum].cursor.currentItem->text.c_str(), -1, TextLanguage, 0, 0);
+			MenuController(pnum);
+
+			if (menu[pnum].cursor.currentItem && menu[pnum].cursor.currentItem->text != "")
+				DrawSubtitlesSA2(1.0f, menu[pnum].cursor.currentItem->text.c_str(), -1, TextLanguage, 0, 0);
 		break;
 	case ItemSelected:
 		if (++twp->wtimer == 15)
@@ -808,7 +809,7 @@ void LoadCharacters_r()
 	{
 		for (uint8_t j = 0; j < CharMax; j++)
 		{
-			if (currentSkin[i][j].Name == "") //is current skin empty
+			if (currentSkin[i][j].Name == "") //if current skin empty
 			{
 				for (uint8_t k = 0; k < skinList.size(); k++)
 				{
@@ -819,6 +820,9 @@ void LoadCharacters_r()
 					}
 				}
 			}
+
+			if (MainCharObj2[i] && MainCharObj2[i]->CharID2 == j)
+				CheckAndLoadJiggle(i, j);
 		}
 	}
 

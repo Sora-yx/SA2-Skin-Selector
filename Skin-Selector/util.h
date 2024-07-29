@@ -12,4 +12,5 @@ void FreeTask(ObjectMaster* tp);
 void FreeTask_(ObjectMaster* tp);
 
 bool is_number(const std::string& s);
+
 bool isSuper(CharObj2Base* pwp);

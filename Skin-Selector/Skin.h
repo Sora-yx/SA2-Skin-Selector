@@ -1,7 +1,7 @@
 #pragma once
 
 #pragma pack(push, 1)
-struct CharInfo
+struct CharFileInfo
 {
 	std::string mdlName = "";
 	std::string texName = "";
@@ -32,15 +32,17 @@ struct SkinMod
 	uint16_t uniqueID;
 	SkinType Type = Mod;
 	bool DisableJiggle = false;
-	CharInfo Extra;
+	CharFileInfo Extra;
 };
 
 void initSkinList(const char* path);
 extern std::vector<SkinMod> skinList;
+/**pnum / charID2*/
 extern SkinMod currentSkin[PMax][CharMax];
-CharInfo* GetCostumeList(const uint8_t pnum);
+CharFileInfo* GetCostumeList(const uint8_t pnum);
 void SwapSkin(const uint8_t pnum);
 bool isLegacy(SkinType type);
+bool isAlt(SkinType type);
 void InitEyesTrack(uint8_t charID2, uint8_t pnum);
 void SkinReplaceFiles(const char* folderPath, const uint8_t charID2);
 

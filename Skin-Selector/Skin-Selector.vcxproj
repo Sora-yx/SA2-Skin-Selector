@@ -173,6 +173,7 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="Jiggle.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="mod.h" />
     <ClInclude Include="patches.h" />
@@ -186,6 +187,7 @@
     <ClCompile Include="config.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="inputs.cpp" />
+    <ClCompile Include="jiggle.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="mod.cpp" />
     <ClCompile Include="patches.cpp" />

@@ -11,3 +11,4 @@ constexpr uint8_t CharMax = Characters_Chaos + 1;
 const std::string resourcedir = "resource\\gd_pc\\";
 
 #define TaskHook FunctionHook<void, ObjectMaster*>
+extern bool saveSkin;

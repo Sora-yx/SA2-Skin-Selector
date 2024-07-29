@@ -6,11 +6,13 @@
 #include <Shlwapi.h>
 #include "patches.h"
 #include "save.h"
+#include "Jiggle.h"
 
 std::vector<SkinMod> skinList;
+/**pnum / charID2*/
 SkinMod currentSkin[PMax][CharMax];
 
-CharInfo SonicLegacyInfo[] =
+CharFileInfo SonicLegacyInfo[] =
 {
 	{ "SONICMDL", "SONICTEX", "SONICMTN", "s_efftex", "zanki_sonic", "itemp_1up"},
 	{ "SONIC1MDL", "SONIC1TEX", "SONICMTN", "s_efftex", "zanki_sonic", "itemp_1up"},
@@ -22,7 +24,7 @@ SkinMod SonicLegacy[] =
 	{ Characters_Sonic, "Sonic (Race Costume)", "Sonic Team", "Desc", "", "", 1, LegacyAlt, false, SonicLegacyInfo[1] },
 };
 
-CharInfo ShadowLegacyInfo[] =
+CharFileInfo ShadowLegacyInfo[] =
 {
 	{ "TERIOSMDL", "TERIOSTEX", "TERIOSMTN", "sh_efftex", "zanki_shadow", "itemp_1up4"},
 	{ "SHADOW1MDL", "SHADOW1TEX", "TERIOSMTN", "sh_efftex", "zanki_shadow", "itemp_1up4"},
@@ -34,7 +36,7 @@ SkinMod ShadowLegacy[] =
 	{ Characters_Shadow, "Shadow (Race Costume)", "Sonic Team", "Desc", "", "", 1, LegacyAlt, false, ShadowLegacyInfo[1] },
 };
 
-CharInfo MilesLegacyInfo =
+CharFileInfo MilesLegacyInfo =
 {
 	"MILESMDL", "MILESTEX", "MILESMTN", "", "zanki_tails", "itemp_1up3"
 };
@@ -42,14 +44,14 @@ CharInfo MilesLegacyInfo =
 
 SkinMod MilesLegacy = { Characters_Tails, "Tails (Regular)", "Sonic Team", "Desc", "", "", 0, Legacy, false, MilesLegacyInfo };
 
-CharInfo EggmanLegacyInfo =
+CharFileInfo EggmanLegacyInfo =
 {
 	 "EGGMDL", "EGGTEX", "EGGMTN", "", "zanki_egg1", "itemp_1up6"
 };
 
 SkinMod EggmanLegacy = { Characters_Eggman, "Eggman (Regular)", "Sonic Team", "Desc", "", "", 0, Legacy, false, EggmanLegacyInfo };
 
-CharInfo KnuxLegacyInfo[] =
+CharFileInfo KnuxLegacyInfo[] =
 {
 	{ "KNUCKMDL", "KNUCKTEX", "KNUCKLMTN", "k_efftex", "zanki_knuckle", "itemp_1up2"},
 	{ "BKNUCKMDL", "BKNUCKTEX", "KNUCKLMTN", "k_efftex", "zanki_knuckle", "itemp_1up2"},
@@ -61,7 +63,7 @@ SkinMod KnuxLegacy[] =
 	{ Characters_Knuckles, "Knuckles (Jumpsuit Costume)", "Sonic Team", "Desc", "", "", 1, LegacyAlt, false, KnuxLegacyInfo[1] },
 };
 
-CharInfo RougeLegacyInfo[] =
+CharFileInfo RougeLegacyInfo[] =
 {
 	{ "ROUGEMDL", "ROUGETEX", "ROUGEMTN", "r_efftex", "zanki_rouge", "itemp_1up5"},
 	{ "BROUGEMDL", "BROUGETEX", "ROUGEMTN", "r_efftex", "zanki_rouge", "itemp_1up5"},
@@ -73,7 +75,7 @@ SkinMod RougeLegacy[] =
 	{ Characters_Rouge, "Rouge (Two-piece Costume)", "Sonic Team", "Desc", "", "", 1, LegacyAlt, false, RougeLegacyInfo[1] },
 };
 
-CharInfo MechTailsLegacyInfo[] =
+CharFileInfo MechTailsLegacyInfo[] =
 {
 	{ "TWALKMDL", "TWALKTEX", "TWALKMTN", "", "zanki_tails", "itemp_1up3"},
 	{ "TWALK1MDL", "TWALK1TEX", "TWALKMTN", "", "zanki_tails", "itemp_1up3"},
@@ -85,7 +87,7 @@ SkinMod MechTailsLegacy[] =
 	{ Characters_MechTails, "Mech Tails (Red Tornado)", "Sonic Team", "Desc", "", "", 1, LegacyAlt, false, MechTailsLegacyInfo[1] },
 };
 
-CharInfo MechEggmanLegacyInfo[] =
+CharFileInfo MechEggmanLegacyInfo[] =
 {
 	{ "EWALKMDL", "EWALKTEX", "EWALKMTN", "", "zanki_egg1", "itemp_1up3"},
 	{ "EWALK2MDL", "EWALK2TEX", "EWALKMTN", "", "zanki_egg1", "itemp_1up3"},
@@ -97,21 +99,21 @@ SkinMod MechEggmanLegacy[] =
 	{ Characters_MechEggman, "Mech Eggman (Camouflage)", "Sonic Team", "Desc", "", "", 1, LegacyAlt, false, MechEggmanLegacyInfo[1] },
 };
 
-CharInfo AmyLegacyInfo =
+CharFileInfo AmyLegacyInfo =
 {
 	 "AMYMDL", "AMYTEX", "AMYMTN", "amy_efftex", "zanki_amy", "",
 };
 
 SkinMod AmyLegacy = { Characters_Amy, "Amy (Regular)", "Sonic Team", "Desc", "", "", 0, Legacy, false, AmyLegacyInfo };
 
-CharInfo MSLegacyInfo =
+CharFileInfo MSLegacyInfo =
 {
 	 "METALSONICMDL", "METALSONICTEX", "METALSONICMTN", "S_EFFTEX", "zanki_metal", "",
 };
 
 SkinMod MSLegacy = { Characters_MetalSonic, "Metal Sonic (Regular)", "Sonic Team", "Desc", "", "", 0, Legacy, false, MSLegacyInfo };
 
-CharInfo TikalLegacyInfo =
+CharFileInfo TikalLegacyInfo =
 {
 	"TICALMDL", "TICALTEX", "TICALMTN", "k_efftex", "zanki_tical", ""
 };
@@ -119,21 +121,21 @@ CharInfo TikalLegacyInfo =
 SkinMod TikalLegacy = { Characters_Tikal, "Tikal (Regular)", "Sonic Team", "Desc", "", "", 0, Legacy, false, TikalLegacyInfo };
 
 
-CharInfo ChaosLegacyInfo =
+CharFileInfo ChaosLegacyInfo =
 {
 	"CHAOS0MDL", "CHAOS0TEX", "CHAOS0MTN", "c0_efftex", "zanki_chaos0", ""
 };
 
 SkinMod ChaosLegacy = { Characters_Chaos, "Chaos 0 (Regular)", "Sonic Team", "Desc", "", "", 0, Legacy, false, ChaosLegacyInfo };
 
-CharInfo SSLegacyInfo =
+CharFileInfo SSLegacyInfo =
 {
 	"SSONICMDL", "SSONICTEX", "SSONICMTN", "SSONEFFTEX", "zanki_supersonic", ""
 };
 
 SkinMod SSLegacy = { Characters_SuperSonic, "Super Sonic (Regular)", "Sonic Team", "Desc", "", "", 0, Legacy, false, SSLegacyInfo };
 
-CharInfo SSHLegacyInfo =
+CharFileInfo SSHLegacyInfo =
 {
 	"SSHADOWMDL", "SSHADOWTEX", "SSHADOWMTN", "SSONEFFTEX", "zanki_supershadow", ""
 };
@@ -366,8 +368,9 @@ static void scanFolder_ReplaceFile(const uint8_t charID2, const std::string& src
 		transform(modFile.begin(), modFile.end(), modFile.begin(), ::tolower);
 
 		// Original filename.
+	
 		std::string origFile = "resource\\gd_pc\\" + modFile.substr(srcLen);
-
+	
 		HelperFunctionsGlobal.ReplaceFile(origFile.c_str(), modFile.c_str());
 		replacedFiles[charID2].push_back(origFile);
 	} while (FindNextFileA(hFind, &data) != 0);
@@ -381,132 +384,6 @@ void SkinReplaceFiles(const char* folderPath, const uint8_t charID2)
 	scanFolder_ReplaceFile(charID2, gdModPath, gdModPath.length() + 1);
 }
 
-static void LoadSonicJiggle(SonicCharObj2* sco2)
-{
-	sco2->SpineJiggle = LoadJiggle(CharacterModels[21].Model->child);
-	sco2->SpineJiggle->type = 18;
-	sco2->SpineJiggle->speed = 0.40f;
-	sco2->SpineJiggle->field_8 = 0;
-	sco2->SpineJiggle->field_10 = 1024;
-	sco2->SpineJiggle->Model = 0;
-	sco2->SpineJigglePos = MainCharObj1[sco2->base.PlayerNum]->Position;
-}
-
-static void LoadShadowJiggle(SonicCharObj2* sco2)
-{
-	sco2->SpineJiggle = LoadJiggle(CharacterModels[86].Model->child);
-	sco2->SpineJiggle->type = 19;
-	sco2->SpineJiggle->speed = 0.40f;
-	sco2->SpineJiggle->field_8 = 0;
-	sco2->SpineJiggle->field_10 = 1024;
-	sco2->SpineJiggle->Model = 0;
-	sco2->SpineJigglePos = MainCharObj1[sco2->base.PlayerNum]->Position;
-}
-
-static void LoadAmyJiggle(SonicCharObj2* sco2)
-{
-	sco2->SpineJiggle = LoadJiggle(CharacterModels[414].Model->child);
-	sco2->SpineJiggle->type = 18;
-	sco2->SpineJiggle->speed = 0.40f;
-	sco2->SpineJiggle->field_8 = 0;
-	sco2->SpineJiggle->field_10 = 1024;
-	sco2->SpineJiggle->Model = 0;
-	sco2->SpineJigglePos = MainCharObj1[sco2->base.PlayerNum]->Position;
-}
-
-static void LoadMilesJiggle(TailsCharObj2New* mco2)
-{
-	mco2->tailJiggle0 = LoadJiggle(CharacterModels[222].Model);
-	mco2->tailJiggle0->type = 6;
-	mco2->tailJiggle0->speed = 0.40f;
-	mco2->tailJiggle0->field_8 = 12288;
-	mco2->tailJiggle0->field_10 = 1792;
-	mco2->tailJiggle0->Model = CharacterModels[228].Model;
-	mco2->tailJiggle0->OtherModel = CharacterModels[229].Model;
-	mco2->tailJiggle0->SourceModelCopy->evalflags &= 0xFFFFFFFD;
-	mco2->tailJiggle1 = LoadJiggle(CharacterModels[222].Model);
-	mco2->tailJiggle1->type = 6;
-	mco2->tailJiggle1->speed = 0.40f;
-	mco2->tailJiggle1->field_8 = 53248;
-	mco2->tailJiggle1->field_10 = 1792;
-	mco2->tailJiggle1->Model = CharacterModels[228].Model;
-	mco2->tailJiggle1->OtherModel = CharacterModels[229].Model;
-	mco2->tailJiggle1->SourceModelCopy->evalflags &= 0xFFFFFFFD;
-}
-
-static void LoadKnuxJiggle(KnucklesCharObj2* kco2)
-{
-	kco2->HeadJiggle = LoadJiggle(CharacterModels[156].Model->child);
-	kco2->HeadJiggle->type = 15;
-	kco2->HeadJiggle->speed = 0.40f;
-	kco2->HeadJiggle->field_8 = 0;
-	kco2->HeadJiggle->field_10 = 1024;
-	kco2->HeadJiggle->Model = CharacterModels[166].Model;
-	kco2->HeadJigglePos = MainCharObj1[kco2->base.PlayerNum]->Position;
-}
-
-static void LoadRougeJiggle(KnucklesCharObj2* kco2, bool isAlt)
-{
-	//crash with rouge alt
-	if (isAlt == false)
-	{
-		kco2->UpperTorsoJiggle = LoadJiggle(CharacterModels[174].Model->child);
-		kco2->UpperTorsoJiggle->type = 14;
-		kco2->UpperTorsoJiggle->speed = 0.40f;
-		kco2->UpperTorsoJiggle->field_8 = 12288;
-		kco2->UpperTorsoJiggle->field_10 = 1024;
-		kco2->UpperTorsoJiggle->Model = CharacterModels[174].Model->child;
-	}
-
-	kco2->LowerTorsoJiggle = LoadJiggle(CharacterModels[174].Model);
-	kco2->LowerTorsoJiggle->type = 13;
-	kco2->LowerTorsoJiggle->speed = 0.40f;
-	kco2->LowerTorsoJiggle->field_8 = 12288;
-	kco2->LowerTorsoJiggle->field_10 = 1024;
-	kco2->LowerTorsoJiggle->Model = CharacterModels[174].Model;
-	kco2->TorsoJigglePos = MainCharObj1[kco2->base.PlayerNum]->Position;
-
-	kco2->HeadJiggle = LoadJiggle(CharacterModels[186].Model->child);
-	kco2->HeadJiggle->type = 17;
-	kco2->HeadJiggle->speed = 0.40f;
-	kco2->HeadJiggle->field_8 = 0;
-	kco2->HeadJiggle->field_10 = 1024;
-	kco2->HeadJiggle->Model = CharacterModels[186].Model->child;
-	kco2->HeadJigglePos = MainCharObj1[kco2->base.PlayerNum]->Position;
-}
-
-static void LoadTikalJiggle(KnucklesCharObj2* tco2)
-{
-	tco2->HeadJiggle = LoadJiggle(CharacterModels[496].Model->child);
-	tco2->HeadJiggle->type = 15;
-	tco2->HeadJiggle->speed = 0.40f;
-	tco2->HeadJiggle->field_8 = 0;
-	tco2->HeadJiggle->field_10 = 1024;
-	tco2->HeadJiggle->Model = CharacterModels[501].Model;
-	tco2->HeadJigglePos = MainCharObj1[tco2->base.PlayerNum]->Position;
-}
-
-static void LoadSuperSonicJiggle(SuperSonicCharObj2* sco2)
-{
-	sco2->SpineJiggle = LoadJiggle(CharacterModels[349].Model->child);
-	sco2->SpineJiggle->type = 18;
-	sco2->SpineJiggle->speed = 0.40f;
-	sco2->SpineJiggle->field_8 = 0;
-	sco2->SpineJiggle->field_10 = 1024;
-	sco2->SpineJiggle->Model = 0;
-	sco2->SpineJigglePos = MainCharObj1[sco2->base.PlayerNum]->Position;
-}
-
-static void LoadSuperShadowJiggle(SuperSonicCharObj2* sco2)
-{
-	sco2->SpineJiggle = LoadJiggle(CharacterModels[376].Model->child);
-	sco2->SpineJiggle->type = 19;
-	sco2->SpineJiggle->speed = 0.40f;
-	sco2->SpineJiggle->field_8 = 0;
-	sco2->SpineJiggle->field_10 = 1024;
-	sco2->SpineJiggle->Model = 0;
-	sco2->SpineJigglePos = MainCharObj1[sco2->base.PlayerNum]->Position;
-}
 
 static NJS_TEXLIST* GetEffTexlist(uint8_t charID, const uint8_t pnum)
 {
@@ -557,7 +434,7 @@ static void LoadCharEffTextures(uint8_t charID, const char* texName)
 }
 
 
-static void LoadEffTex(CharInfo* info, const uint8_t pnum, const uint8_t charID2)
+static void LoadEffTex(CharFileInfo* info, const uint8_t pnum, const uint8_t charID2)
 {
 	NJS_TEXLIST* texlistEff = GetEffTexlist(charID2, pnum);
 	if (texlistEff)
@@ -575,27 +452,27 @@ static void LoadEffTex(CharInfo* info, const uint8_t pnum, const uint8_t charID2
 	}
 }
 
-static void LoadLifeIcon(CharInfo* info, const uint8_t charID2)
+static void LoadLifeIcon(CharFileInfo* info, const uint8_t charID2)
 {
 	FreeTexList(LifeIconTexs[charID2]);
 	LoadTextureList_NoName(LifeIconTexs[charID2]);
 }
 
-static void LoadExtraTextures(CharInfo* info, const uint8_t pnum, const uint8_t charID2)
+static void LoadExtraTextures(CharFileInfo* info, const uint8_t pnum, const uint8_t charID2)
 {
 	//restore eff tex
 	LoadEffTex(info, pnum, charID2);
 	LoadLifeIcon(info, charID2);
 }
 
-static bool HasCustomAnims(CharInfo* info, const char* folderPath)
+static bool HasCustomAnims(CharFileInfo* info, const char* folderPath)
 {
 	std::string animPath = folderPath + (std::string)"\\gd_PC\\" + info->animName + ".PRS";
 	animPath = normalizePath(animPath.c_str());
 	return FileExists(animPath);
 }
 
-static void ReplaceAnimations(CharInfo* info, const char* folderPath, const uint8_t pnum, bool hadCustomAnim = false)
+static void ReplaceAnimations(CharFileInfo* info, const char* folderPath, const uint8_t pnum, bool hadCustomAnim = false)
 {
 	std::string animPath = folderPath + (std::string)info->animName + ".PRS";
 	animPath = normalizePath(animPath.c_str());
@@ -661,6 +538,9 @@ void LoadCoverSkinTex(SkinMenuItem* skin)
 
 static void DoSpeedCharsSwap(SkinMod* skin, SonicCharObj2* sCo2, const uint8_t pnum)
 {
+	if (isSuper(&sCo2->base))
+		return;
+
 	JiggleInfo* Jiggle = sCo2->SpineJiggle;
 
 	if (Jiggle)
@@ -866,7 +746,7 @@ static void DoKnuxRougeSwap(SkinMod* skin, KnucklesCharObj2* kCo2, const uint8_t
 		if (charID2 == Characters_Knuckles)
 			LoadKnuxJiggle(kCo2);
 		else if (charID2 == Characters_Rouge)
-			LoadRougeJiggle(kCo2, (skin->Type == Alt || skin->Type == LegacyAlt));
+			LoadRougeJiggle(kCo2, isAlt(skin->Type));
 		else if (charID2 == Characters_Tikal)
 			LoadTikalJiggle(kCo2);
 	}
@@ -1045,7 +925,7 @@ void SwapSkin(const uint8_t pnum)
 	auto meCO2 = (MechEggmanCharObj2*)spePwk;
 	auto SSCo2 = (SuperSonicCharObj2*)spePwk;
 
-	CharInfo* costume = nullptr;
+	CharFileInfo* costume = nullptr;
 	SkinMenuItem* skin = nullptr;
 
 	switch (MainCharObj2[pnum]->CharID)
@@ -1313,11 +1193,6 @@ static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& l
 			info.DisableJiggle = skin->getBool("", "DisableJiggle", false);
 
 			FillCharInfo(&info);
-
-			info.Extra.mdlName = skin->getString("Extra", "Model", info.Extra.mdlName);
-			info.Extra.texName = skin->getString("Extra", "Texture", info.Extra.texName);
-			info.Extra.animName = skin->getString("Extra", "Anim", info.Extra.animName);
-
 			info.Type = (SkinType)skin->getInt("Extra", "Alt", Mod);
 
 			std::filesystem::path pathObj(inipath);
@@ -1380,11 +1255,14 @@ void initSkinList(const char* path)
 	AddLegacySkin();
 	ScanDirectoryForIniFile(path + (std::string)"\\skins", skinList);
 
-	for (uint8_t i = 0; i < PMax; i++)
+	if (saveSkin)
 	{
-		for (uint8_t j = 0; j < CharMax; j++)
+		for (uint8_t i = 0; i < PMax; i++)
 		{
-			Load(i, j);
+			for (uint8_t j = 0; j < CharMax; j++)
+			{
+				Load(i, j);
+			}
 		}
 	}
 }
