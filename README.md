@@ -1,22 +1,29 @@
 <h1 align="center">SA2 Skin Selector Mod</h1>
-<p align="center"><img src="https://i.imgur.com/6BlqqB0.png">
+<p align="center"><img src="https://i.imgur.com/N5k1bpD.jpeg">
 
 </p>
 
 ## About
 
 This mod allows you to select a different character skin mod in real time.
-This is done in a way so you open a menu in game and can select between different skin mods, this also includes the multiplayer costumes from the original game. 
+This is done in a way so you open a custom menu in game and can select between different skin mods, this also includes the multiplayer costumes from the original game. 
 
 This works by adding an existing skin mod in the ``skins`` folder of the mod, make some specific edit, then the mod will add them in the menu automatically when starting the game. (More information in the section 'how to add skin'.)
 
 ## Features
-- Can toggle skins in real time
+- Can toggle skins in real time including the original alt costume from the game.
 - Option to change the button to open the Menu (Back, LB, RB, Stick press etc...)
-- Support custom models, animations and textures (the name of those files can be custom as well).
+- Save System so the selected skins are conserved between sessions and stage changes.
+- Support custom models, animations and textures
 - Support custom icon for each skin that you want in the menu
 - Support custom Hud for each Skin, including life icon and one up
-- Support custom effects textures (some mod like Mario uses it.)
+- Support custom effects textures (some mods like Mario, Cosmo and Blaze use it.)
+
+## Limits
+- Sounds, Voices and Super Sonic / Shadow model transformation work, but they will only get updated on the next stage
+- Full pack mods like DC Characters aren't supported, but combo like Tails mechless and Mech works as well as Sonic and Super Sonic as long as the files use legacy names. (Ie ``sonicmodel`` and ``ssmodel``)
+- Although Full Packs aren't supported, nothing prevent you from making a separate folder for each character skin so you can use them anyway.
+- ``.Prs`` textures seem to crash the game, it's recommended to convert them to ``.pak`` using ``Texture Editor`` from [SA Tools](https://mm.reimuhakurei.net/SA%20Tools%20x64.7z).
 
 
 ## Installation:
@@ -30,6 +37,7 @@ This works by adding an existing skin mod in the ``skins`` folder of the mod, ma
 	
 ## How to add a skin
 
+### Set up skin information
 
 1) Download (or copy if you already have) any skin mod that you want, then drag drop their whole mod folder in the ``Skins`` folder of Skin Selector.
 
@@ -38,23 +46,67 @@ This works by adding an existing skin mod in the ``skins`` folder of the mod, ma
 
 3) In the skin mod folder that you did copy, rename ``mod.ini`` to ``skin.ini``.
 
-4) Delete all files that aren't needed (``mod.manifest``, ``mod.version``, DLL files...). You obviously want to keep stuff like the ``gd_pc`` folder which includes the character models, textures (and anims if any).
+4) Delete all files that aren't needed (``mod.manifest``, ``mod.version``, DLL files...). You obviously want to keep stuff like the ``gd_pc`` and ``ReplaceTEx`` folder which includes the character models, textures (and anims if any).
 
 ![tuto1](https://i.imgur.com/VbNhw8i.png)
 
 5) Open ``skin.ini``, add on top ``Character=NameOfTheCharacter``, example: ``Character=Rouge`` if the skin is for Rouge.
 
-![tuto2](https://i.imgur.com/n28s0sH.png)
+![tuto2](https://i.imgur.com/TODMaF5.png)
 
+Here's the list of the keyword supported for all the characters:
+```- Sonic
+- Shadow
+- Tails
+- Miles
+- Eggman
+- Knuckles
+- Rouge
+- MechTails
+- MechEggman
+- Amy
+- SuperSonic
+- SuperShadow
+- MetalSonic
+- ChaoWalker
+- DarkChaoWalker
+- Tikal
+- Chaos```
 
 This is usually enough for a skin mod to work and you can now try it in game.
 
-### Extra notes:
-- If the mod requires to disable the jiggle of the character (this is common if a skin mod came with a DLL) you can add ``DisableJiggle=True`` in ``skin.ini``.
-- This should be rare, but if the mod has a custom name for the model, animation or textures, you can specify it in ``skin.ini`` like this:
+## Extra notes:
+- If the mod requires to disable the jiggle of the character (this is common if a skin mod came with a DLL file) you can add ``DisableJiggle=True`` in ``skin.ini``. 
+- This should be rare, but if the skin you want to add has a custom name for the models, animations or textures, you will have to rename them to match SA2's vanilla files. For example the Blaze mod has a file named ``blazemdl.prs``, you will need to rename it ``sonicmodel.prs``, repeat this for animations and textures.
+- As mentioned in the limits section earlier, ``.PRS`` textures seem to crash the game, it is recommended to convert them to ``.PAK`` using Texture Editor and the ``Save As`` feature. (This should be rare as most skins tend to use .PAK already.)
 
-![tuto3](https://i.imgur.com/QqtMwRZ.png)
-	
+## Add an icon to your skin for the menu
+
+If you want to go further, you can add a custom character icon to pick your character so it will look better.
+
+To do it, you will need ``Texture Editor`` from [SA Tools](https://mm.reimuhakurei.net/SA%20Tools%20x64.7z).
+Some skins come with a Stage Select Map icon (look for a ``stageMap.pak`` file / folder, or a custom name if the skin mod was using those), then you can extract the character icon using Texture Editor. If the skin didn't have any custom icon, you will have to be creative and make something custom yourself.
+
+Once you have the character icon extracted, you can open Texture Editor and select ``File -> New -> Pak.``
+
+![tuto3](https://i.imgur.com/DR2xaO5.png)
+
+Then click on "Add.." and pick your custom icon.
+Finally, select ``Edit -> Generate New Gbix`` then click on ``Yes`` on the warning message. This will be useful to avoid textures conflict due to the cache system of the game.
+
+![tuto4](https://i.imgur.com/URHKgQV.png)
+
+Now you can do ``File -> Save As``and save your pak texture in the PRS folder of your installed skin, name it ``cover`` so the mod can detect it. 
+
+![tuto5](https://i.imgur.com/lpa2Gb4.png)
+
+Nb: ``.PAK`` files are sensitive, so avoid renaming or changing their location, if you really have to do it, use the ``Save As`` feature from Texture Editor.
+
+Nb2: If your skin has multiple models like an Alt version, Super Sonic / Shadow, you can also add a cover for them in the same way, the reserved names are the following ones: ``CoverAlt``, ``CoverSS`` and ``CoverSSH``.
+
+If you have any question you can ask on the X-Hax Discord or leave a comment in the GameBanana page of the mod.
+
+That's it!
 
 ## Build this repo (for programmers)
 
