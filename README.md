@@ -24,6 +24,7 @@ This works by adding an existing skin mod in the ``skins`` folder of the mod, ma
 - Full pack mods like DC Characters aren't supported, but combo like Tails mechless and Mech works as well as Sonic and Super Sonic as long as the files use legacy names. (Ie ``sonicmodel`` and ``ssmodel``)
 - Although Full Packs aren't supported, nothing prevent you from making a separate folder for each character skin so you can use them anyway.
 - ``.Prs`` textures seem to crash the game, it's recommended to convert them to ``.pak`` using ``Texture Editor`` from [SA Tools](https://mm.reimuhakurei.net/SA%20Tools%20x64.7z).
+- If you are in Super Form using the Super Sonic mod, you cannot swap skins until you detransform for technical reasons.
 
 
 ## Installation:
@@ -79,7 +80,7 @@ This is usually enough for a skin mod to work and you can now try it in game.
 
 ## Extra notes:
 - If the mod requires to disable the jiggle of the character (this is common if a skin mod came with a DLL file) you can add ``DisableJiggle=True`` in ``skin.ini``. 
-- This should be rare, but if the skin you want to add has a custom name for the models, animations or textures, you will have to rename them to match SA2's vanilla files. For example the Blaze mod has a file named ``blazemdl.prs``, you will need to rename it ``sonicmodel.prs``, repeat this for animations and textures.
+- This should be rare, but if the skin you want to add has a custom name for the models, animations or textures, you will have to rename them to match SA2's vanilla files. For example the Blaze mod has a file named ``blazemdl.prs``, you will need to rename it ``sonicmdl.prs``, repeat this for animations and textures.
 - As mentioned in the limits section earlier, ``.PRS`` textures seem to crash the game, it is recommended to convert them to ``.PAK`` using Texture Editor and the ``Save As`` feature. (This should be rare as most skins tend to use .PAK already.)
 
 ## Add an icon to your skin for the menu
@@ -108,7 +109,18 @@ Nb2: If your skin has multiple models like an Alt version, Super Sonic / Shadow,
 
 If you have any question you can ask on the X-Hax Discord or leave a comment in the GameBanana page of the mod.
 
+
+## How to use the menu in game
+
+It's very simple:
+- During gameplay, press the button to open the menu (default to ``back / share`` on controllers and ``I`` on keyboard)
+- The custom menu should shows up and you can select whatever skin you added, if you didn't add anything this will default to the legacy character and their alt costume (if it exists).
+- Press A to swap skin, the menu will blink as a confirmation.
+- Press B to close the menu.
+
 That's it!
+
+![end](https://i.imgur.com/JP4JBx6.png)
 
 ## Build this repo (for programmers)
 
