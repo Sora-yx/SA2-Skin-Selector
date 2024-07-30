@@ -72,7 +72,8 @@ Here's the list of the keyword supported for all the characters:
 - ChaoWalker
 - DarkChaoWalker
 - Tikal
-- Chaos```
+- Chaos
+```
 
 This is usually enough for a skin mod to work and you can now try it in game.
 
