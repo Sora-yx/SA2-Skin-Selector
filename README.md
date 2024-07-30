@@ -94,12 +94,12 @@ Once you have the character icon extracted, you can open Texture Editor and sele
 
 ![tuto3](https://i.imgur.com/DR2xaO5.png)
 
-Then click on "Add.." and pick your custom icon.
+Then click on ``Add...`` and pick your custom icon.
 Finally, select ``Edit -> Generate New Gbix`` then click on ``Yes`` on the warning message. This will be useful to avoid textures conflict due to the cache system of the game.
 
 ![tuto4](https://i.imgur.com/URHKgQV.png)
 
-Now you can do ``File -> Save As``and save your pak texture in the PRS folder of your installed skin, name it ``cover`` so the mod can detect it. 
+Now you can do ``File -> Save As`` and save your pak texture in the PRS folder of your installed skin, name it ``cover`` so the mod can detect it. 
 
 ![tuto5](https://i.imgur.com/lpa2Gb4.png)
 
@@ -107,14 +107,14 @@ Nb: ``.PAK`` files are sensitive, so avoid renaming or changing their location, 
 
 Nb2: If your skin has multiple models like an Alt version, Super Sonic / Shadow, you can also add a cover for them in the same way, the reserved names are the following ones: ``CoverAlt``, ``CoverSS`` and ``CoverSSH``.
 
-If you have any question you can ask on the X-Hax Discord or leave a comment in the GameBanana page of the mod.
+If you have any question you can ask on the [X-Hax Discord](https://discord.gg/gqJCF47) or leave a comment in the GameBanana page of the mod.
 
 
-## How to use the menu in game
+## How to Swap Skins in Game
 
 It's very simple:
 - During gameplay, press the button to open the menu (default to ``back / share`` on controllers and ``I`` on keyboard)
-- The custom menu should shows up and you can select whatever skin you added, if you didn't add anything this will default to the legacy character and their alt costume (if it exists).
+- The custom menu should shows up and you can select whatever skin you added, if you didn't add anything, this will default to the legacy character and their alt costume (if it exists).
 - Press A to swap skin, the menu will blink as a confirmation.
 - Press B to close the menu.
 
