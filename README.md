@@ -21,9 +21,9 @@ This works by adding an existing skin mod in the ``skins`` folder of the mod, ma
 
 ## Limits
 - Sounds, Voices and Super Sonic / Shadow model transformation work, but they will only get updated on the next stage
-- Full pack mods like DC Characters aren't supported, but combo like Tails mechless and Mech works as well as Sonic and Super Sonic as long as the files use legacy names. (Ie ``sonicmodel`` and ``ssmodel``)
-- Although Full Packs aren't supported, nothing prevent you from making a separate folder for each character skin so you can use them anyway.
-- ``.Prs`` textures seem to crash the game, it's recommended to convert them to ``.pak`` using ``Texture Editor`` from [SA Tools](https://mm.reimuhakurei.net/SA%20Tools%20x64.7z).
+- Full pack mods like DC Characters aren't supported, but combo like Tails mechless and Mech works as well as Sonic and Super Sonic as long as the files use legacy names. (Ie ``sonicmdl`` and ``ssonicmdl``)
+- Although Full Packs aren't supported, you can make a separate folder for each character skin from a pack so you can use them anyway.
+- ``.PRS`` textures seem to crash the game, it's recommended to convert them to ``.PAK`` using ``Texture Editor`` from [SA Tools](https://mm.reimuhakurei.net/SA%20Tools%20x64.7z).
 - If you are in Super Form using the Super Sonic mod, you cannot swap skins until you detransform for technical reasons.
 
 
@@ -90,7 +90,7 @@ If you want to go further, you can add a custom character icon to pick your char
 To do it, you will need ``Texture Editor`` from [SA Tools](https://mm.reimuhakurei.net/SA%20Tools%20x64.7z).
 Some skins come with a Stage Select Map icon (look for a ``stageMap.pak`` file / folder, or a custom name if the skin mod was using those), then you can extract the character icon using Texture Editor. If the skin didn't have any custom icon, you will have to be creative and make something custom yourself.
 
-Once you have the character icon extracted, you can open Texture Editor and select ``File -> New -> Pak.``
+Once you have the character icon extracted, you can open Texture Editor and select ``File -> New -> .PAK``
 
 ![tuto3](https://i.imgur.com/DR2xaO5.png)
 
