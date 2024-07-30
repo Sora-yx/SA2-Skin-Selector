@@ -11,7 +11,7 @@ This is done in a way so you open a custom menu in game and can select between d
 This works by adding an existing skin mod in the ``skins`` folder of the mod, make some specific edit, then the mod will add them in the menu automatically when starting the game. (More information in the section 'how to add skin'.)
 
 ## Features
-- Can toggle skins in real time including the original alt costume from the game.
+- Can toggle skins in real time including the original alt costumes from the game.
 - Option to change the button to open the Menu (Back, LB, RB, Stick press etc...)
 - Save System so the selected skins are conserved between sessions and stage changes.
 - Support custom models, animations and textures
@@ -46,7 +46,7 @@ This works by adding an existing skin mod in the ``skins`` folder of the mod, ma
 
 3) In the skin mod folder that you did copy, rename ``mod.ini`` to ``skin.ini``.
 
-4) Delete all files that aren't needed (``mod.manifest``, ``mod.version``, DLL files...). You obviously want to keep stuff like the ``gd_pc`` and ``ReplaceTEx`` folder which includes the character models, textures (and anims if any).
+4) Delete all files that aren't needed (``mod.manifest``, ``mod.version``, DLL files...). You obviously want to keep stuff like the ``gd_pc`` and ``ReplaceTex`` folders since those includes the character models, textures (and anims if any).
 
 ![tuto1](https://i.imgur.com/VbNhw8i.png)
 
@@ -55,7 +55,8 @@ This works by adding an existing skin mod in the ``skins`` folder of the mod, ma
 ![tuto2](https://i.imgur.com/TODMaF5.png)
 
 Here's the list of the keyword supported for all the characters:
-```- Sonic
+```
+- Sonic
 - Shadow
 - Tails
 - Miles
