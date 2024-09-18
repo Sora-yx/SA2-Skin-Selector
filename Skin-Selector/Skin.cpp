@@ -1123,8 +1123,8 @@ static void ScanMechSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list
 	}
 	else if (charID2 == Characters_Eggman)
 	{
-		std::string SSHFolder = gdPCMod + SSHLegacyInfo.mdlName;
-		if (DirectoryExists(normalizePath(SSHFolder.c_str())))
+		std::string MechFolder = gdPCMod + MechEggmanLegacyInfo[0].mdlName;
+		if (DirectoryExists(normalizePath(MechFolder.c_str())))
 		{
 			SkinMod info2{};
 			info2 = *info;
