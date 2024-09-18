@@ -80,7 +80,7 @@ This is usually enough for a skin mod to work and you can now try it in game.
 
 ## Extra notes:
 - If the game crashes when you swap a skin, it's possible that it requires to disable the jiggle of the character (this is common if a skin came with a DLL file) you can add ``DisableJiggle=True`` in ``skin.ini``. 
-- This should be rare, but if the skin you want to add has a custom name for the models, animations or textures, you will have to rename them to match SA2's vanilla files. For example the Blaze mod has a file named ``blazemdl.prs``, you will need to rename it ``sonicmdl.prs``, repeat this for animations and textures.
+- This should be rare, but if the skin you want to add has a custom name for the models, animations or textures, you will have to rename them to match SA2's vanilla files. For example the Blaze mod has a file named ``blzmdl.prs``, you will need to rename it ``sonicmdl.prs``, repeat this for animations and textures. (You may want to use Texture Editor to re save the texture and give them a different name as PAK files are sensitive).
 - As mentioned in the limits section earlier, ``.PRS`` textures seem to crash the game, it is recommended to convert them to ``.PAK`` using Texture Editor and the ``Save As`` feature. (This should be rare as most skins tend to use .PAK already.)
 
 ## (Optional) Add an icon to your skin for the menu
