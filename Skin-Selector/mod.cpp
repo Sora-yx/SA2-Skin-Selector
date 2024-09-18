@@ -30,11 +30,17 @@ extern "C" {
 	__declspec(dllexport) void __cdecl Init(const char* path, const HelperFunctions& helperFunctions)
 	{
 		HelperFunctionsGlobal = helperFunctions;
+
+		if (helperFunctions.Version < 12)
+		{
+			MessageBox(MainWindowHandle, L"Your Mod Loader does not support the API Version 12, please Update your Mod Loader for this mod to work.", L"Skin Selector Mod - Error Mod Loader Out of Date", MB_ICONWARNING);
+			return;
+		}
+
 		std::filesystem::path pathObj(path);
 		modName = pathObj.filename().string();
 		modPath = path;
 
-		hdGUI = GetModuleHandle(L"HD GUI.dll") != NULL;
 
 		ReadConfig(path); //get mod settings by the user
 	
