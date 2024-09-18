@@ -303,6 +303,10 @@ static void DrawLegacyCharIcon(const uint8_t pnum, const uint8_t i, Characters c
 
 	SetMaterial(1.0f, 1.0f, 1.0f, 1.0f);
 	uint8_t texID = texIDSonic + menu[pnum].currentCharacter;
+	if (menu[pnum].currentCharacter > Characters_Amy) //handle super sonic and Big offset in the charList
+		texID -= 3;
+
+
 	if (alt)
 	{
 		uint8_t newTexID = getAltTexID(menu[pnum].currentCharacter);
