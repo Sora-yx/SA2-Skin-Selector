@@ -1053,7 +1053,8 @@ static void ScanSuperFormSubDirectory(std::string gdPCMod, std::vector<SkinMod>&
 	if (charID2 == Characters_Sonic)
 	{
 		std::string SSFolder = gdPCMod + SSLegacyInfo.mdlName;
-		if (DirectoryExists(normalizePath(SSFolder.c_str())))
+		std::string normalizedPath = normalizePath(SSFolder.c_str());
+		if (DirectoryExists(normalizedPath) || FileExists(normalizedPath + ".prs"))
 		{
 			SkinMod info2{};
 			info2 = *info;
@@ -1068,7 +1069,8 @@ static void ScanSuperFormSubDirectory(std::string gdPCMod, std::vector<SkinMod>&
 	else if (charID2 == Characters_Shadow)
 	{
 		std::string SSHFolder = gdPCMod + SSHLegacyInfo.mdlName;
-		if (DirectoryExists(normalizePath(SSHFolder.c_str())))
+		std::string normalizedPath = normalizePath(SSHFolder.c_str());
+		if (DirectoryExists(normalizedPath) || FileExists(normalizedPath + ".prs"))
 		{
 			SkinMod info2{};
 			info2 = *info;
@@ -1110,7 +1112,8 @@ static void ScanAltSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list,
 		return;
 	}
 
-	if (DirectoryExists(normalizePath(Folder.c_str())))
+	std::string normalizedPath = normalizePath(Folder.c_str());
+	if (DirectoryExists(normalizedPath) || FileExists(normalizedPath + ".prs"))
 	{
 		SkinMod info2{};
 		info2 = *info;
@@ -1130,7 +1133,8 @@ static void ScanMechSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list
 	if (charID2 == Characters_Tails)
 	{
 		std::string MechFolder = gdPCMod + MechTailsLegacyInfo[0].mdlName;
-		if (DirectoryExists(normalizePath(MechFolder.c_str())))
+		std::string normalizedPath = normalizePath(MechFolder.c_str());
+		if (DirectoryExists(normalizedPath) || FileExists(normalizedPath + ".prs"))
 		{
 			SkinMod info2{};
 			info2 = *info;
@@ -1145,7 +1149,8 @@ static void ScanMechSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list
 	else if (charID2 == Characters_Eggman)
 	{
 		std::string MechFolder = gdPCMod + MechEggmanLegacyInfo[0].mdlName;
-		if (DirectoryExists(normalizePath(MechFolder.c_str())))
+		std::string normalizedPath = normalizePath(MechFolder.c_str());
+		if (DirectoryExists(normalizedPath) || FileExists(normalizedPath + ".prs"))
 		{
 			SkinMod info2{};
 			info2 = *info;
@@ -1277,7 +1282,7 @@ void initSkinList(const char* path)
 {
 	AddLegacySkin();
 	ScanDirectoryForIniFile(path + (std::string)"\\skins", skinList);
-
+	
 	if (saveSkin)
 	{
 		for (uint8_t i = 0; i < PMax; i++)
