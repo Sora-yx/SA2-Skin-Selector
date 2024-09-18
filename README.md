@@ -29,7 +29,7 @@ This works by adding an existing skin mod in the ``skins`` folder of the mod, ma
 
 ## Installation:
 
-    1) Make sure you have the latest version of SA2 Mod Loader downloaded and installed.
+    1) Make sure you have the latest version of SA Mod Manager downloaded and installed.
     2) Download the latest version of the mod and place the entire folder in the mods folder.
     3) If all the above steps have been done properly, you should be able to run SAModManager and select the mod in the list.
     4) To configure options, select the mod in the Mod Manager and click on 'Configure Mod' to see all the options.
@@ -45,13 +45,13 @@ This works by adding an existing skin mod in the ``skins`` folder of the mod, ma
 ![TUTO0](https://i.imgur.com/HvIS44y.png)
 
 
-3) In the skin mod folder that you did copy, rename ``mod.ini`` to ``skin.ini``.
+2) In the skin mod folder that you did copy, rename ``mod.ini`` to ``skin.ini``.
 
-4) Delete all files that aren't needed (``mod.manifest``, ``mod.version``, DLL files...). You obviously want to keep stuff like the ``gd_pc`` and ``ReplaceTex`` folders since those includes the character models, textures (and anims if any).
+3) Delete all files that aren't needed (``mod.manifest``, ``mod.version``, DLL files...). You obviously want to keep stuff like the ``gd_pc`` and ``ReplaceTex`` folders since those includes the character models, textures (and anims if any).
 
 ![tuto1](https://i.imgur.com/VbNhw8i.png)
 
-5) Open ``skin.ini``, add on top ``Character=NameOfTheCharacter``, example: ``Character=Rouge`` if the skin is for Rouge.
+4) Open ``skin.ini``, add on top ``Character=NameOfTheCharacter``, example: ``Character=Rouge`` if the skin is for Rouge.
 
 ![tuto2](https://i.imgur.com/TODMaF5.png)
 
@@ -79,11 +79,11 @@ Here's the list of the keyword supported for all the characters:
 This is usually enough for a skin mod to work and you can now try it in game.
 
 ## Extra notes:
-- If the mod requires to disable the jiggle of the character (this is common if a skin mod came with a DLL file) you can add ``DisableJiggle=True`` in ``skin.ini``. 
+- If the game crashes when you swap a skin, it's possible that it requires to disable the jiggle of the character (this is common if a skin came with a DLL file) you can add ``DisableJiggle=True`` in ``skin.ini``. 
 - This should be rare, but if the skin you want to add has a custom name for the models, animations or textures, you will have to rename them to match SA2's vanilla files. For example the Blaze mod has a file named ``blazemdl.prs``, you will need to rename it ``sonicmdl.prs``, repeat this for animations and textures.
 - As mentioned in the limits section earlier, ``.PRS`` textures seem to crash the game, it is recommended to convert them to ``.PAK`` using Texture Editor and the ``Save As`` feature. (This should be rare as most skins tend to use .PAK already.)
 
-## Add an icon to your skin for the menu
+## (Optional) Add an icon to your skin for the menu
 
 If you want to go further, you can add a custom character icon to pick your character so it will look better.
 
