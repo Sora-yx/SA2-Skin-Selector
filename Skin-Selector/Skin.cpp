@@ -113,6 +113,21 @@ CharFileInfo MSLegacyInfo =
 
 SkinMod MSLegacy = { Characters_MetalSonic, "Metal Sonic (Regular)", "Sonic Team", "Desc", "", "", 0, Legacy, false, MSLegacyInfo };
 
+CharFileInfo ChaoWalkerLegacyInfo =
+{
+	 "CWALKMDL", "CWALKTEX", "CWALKMTN", "", "zanki_chao", "",
+};
+
+SkinMod ChaoWalkerLegacy = { Characters_ChaoWalker, "Chao Walker (Regular)", "Sonic Team", "Desc", "", "", 0, Legacy, false, ChaoWalkerLegacyInfo };
+
+CharFileInfo DarkChaoWalkerLegacyInfo =
+{
+	 "DWALKMDL", "DWALKTEX", "DWALKMTN", "", "zanki_dchao", "",
+};
+
+SkinMod DarkChaoWalkerLegacy = { Characters_DarkChaoWalker, "Dark Chao Walker (Regular)", "Sonic Team", "Desc", "", "", 0, Legacy, false, DarkChaoWalkerLegacyInfo };
+
+
 CharFileInfo TikalLegacyInfo =
 {
 	"TICALMDL", "TICALTEX", "TICALMTN", "k_efftex", "zanki_tical", ""
@@ -1005,6 +1020,12 @@ static void FillCharInfo(SkinMod* mod)
 	case Characters_MechEggman:
 		mod->Extra = Alt ? MechEggmanLegacyInfo[1] : MechEggmanLegacyInfo[0];
 		break;
+	case Characters_ChaoWalker:
+		mod->Extra = ChaoWalkerLegacyInfo;
+		break;
+	case Characters_DarkChaoWalker:
+		mod->Extra = DarkChaoWalkerLegacyInfo;
+		break;
 	case Characters_Amy:
 		mod->Extra = AmyLegacyInfo;
 		break;
@@ -1241,6 +1262,8 @@ static void AddLegacySkin()
 
 	skinList.push_back(AmyLegacy);
 	skinList.push_back(MSLegacy);
+	skinList.push_back(ChaoWalkerLegacy);
+	skinList.push_back(DarkChaoWalkerLegacy);
 	skinList.push_back(TikalLegacy);
 	skinList.push_back(ChaosLegacy);
 	skinList.push_back(SSLegacy);
