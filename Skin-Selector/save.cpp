@@ -14,8 +14,39 @@ TaskHook SuperDelete_t(Super_Delete);
 
 SkinMod* savedSkin[PMax][CharMax] = { nullptr };
 
+void AdjustMechPath(const uint8_t pnum, const uint8_t charID2)
+{
+	if (charID2 != Characters_MechEggman && charID2 != Characters_MechTails)
+		return;
+
+	auto eggmanSkin = savedSkin[pnum][Characters_Eggman];
+	auto milesSkin = savedSkin[pnum][Characters_Tails];
+
+	if (charID2 == Characters_MechEggman && eggmanSkin != NULL && savedSkin[pnum][Characters_MechEggman] != NULL)
+	{
+		if (eggmanSkin->FolderPath != "" && savedSkin[pnum][Characters_MechEggman]->FolderPath != "")
+		{
+			if (eggmanSkin->FolderPath != savedSkin[pnum][charID2]->FolderPath)
+			{
+				savedSkin[pnum][Characters_MechEggman]->FolderPath = eggmanSkin->FolderPath;
+			}
+		}
+	}
+	else if (charID2 == Characters_MechTails && milesSkin != NULL &&  savedSkin[pnum][Characters_MechTails] != NULL)
+	{
+		if (milesSkin->FolderPath != "" && savedSkin[pnum][Characters_MechTails]->FolderPath != "")
+		{
+			if (milesSkin->FolderPath != savedSkin[pnum][charID2]->FolderPath)
+			{
+				savedSkin[pnum][Characters_MechTails]->FolderPath = milesSkin->FolderPath;
+			}
+		}
+	}
+}
+
 static void LoadSavedSkin(const uint8_t pnum, const uint8_t charID2)
 {
+	AdjustMechPath(pnum, charID2);
 	currentSkin[pnum][charID2] = *savedSkin[pnum][charID2];
 	SkinReplaceFiles(currentSkin[pnum][charID2].FolderPath.c_str(), charID2);
 }
