@@ -90,11 +90,13 @@ If you want to go further, you can add a custom character icon to pick your char
 To do it, you will need ``Texture Editor`` from [SA Tools](https://mm.reimuhakurei.net/SA%20Tools%20x64.7z).
 Some skins come with a Stage Select Map icon (look for a ``stageMap.pak`` file / folder, or a custom name if the skin mod was using those), then you can extract the character icon using Texture Editor. If the skin didn't have any custom icon, you will have to be creative and make something custom yourself.
 
-Once you have the character icon extracted, you can open Texture Editor and select ``File -> New -> .PAK``
+Once you have the character icon extracted or made your own, you can open Texture Editor and select ``File -> New -> .PAK``
+
 
 ![tuto3](https://i.imgur.com/DR2xaO5.png)
 
-Then click on ``Add...`` and pick your custom icon.
+Then click on ``Add...`` and pick your custom icon, Images have to be in 64x64, just like the ones for the stage select, and you need to name it "cover", which can be done directly in Texture Editor.
+
 Finally, select ``Edit -> Generate New Gbix`` then click on ``Yes`` on the warning message. This will be useful to avoid textures conflict due to the cache system of the game.
 
 ![tuto4](https://i.imgur.com/URHKgQV.png)
@@ -103,9 +105,11 @@ Now you can do ``File -> Save As`` and save your pak texture in the PRS folder o
 
 ![tuto5](https://i.imgur.com/lpa2Gb4.png)
 
-Nb: ``.PAK`` files are sensitive, so avoid renaming or changing their location, if you really have to do it, use the ``Save As`` feature from Texture Editor.
 
-Nb2: If your skin has multiple models like an Alt version, Super Sonic / Shadow, you can also add a cover for them in the same way, the reserved names are the following ones: ``CoverAlt``, ``CoverSS`` and ``CoverSSH``.
+If your skin has an alt costume / outfit version, or a Super form model, you can have extra covers just for those. To do that, you need to repeat the same exact steps than above, however the name reserved for them is different, for the costumes it's ``CoverAlt``, for Super Sonic it's ``CoverSS`` and for Super Shadow it's ``CoverSSH``. 
+The files will also go in the PRS folder with the regular Cover picture.
+
+Nb: ``.PAK`` files are sensitive, so avoid renaming or changing their location, if you really have to do it, use the ``Save As`` feature from Texture Editor.
 
 If you have any question you can ask on the [X-Hax Discord](https://discord.gg/gqJCF47) or leave a comment in the GameBanana page of the mod.
 
