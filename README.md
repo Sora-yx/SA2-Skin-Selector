@@ -47,11 +47,7 @@ This works by adding an existing skin mod in the ``skins`` folder of the mod, ma
 
 2) In the skin mod folder that you did copy, rename ``mod.ini`` to ``skin.ini``.
 
-3) Delete all files that aren't needed (``mod.manifest``, ``mod.version``, DLL files...). You obviously want to keep stuff like the ``gd_pc`` and ``ReplaceTex`` folders since those includes the character models, textures (and anims if any).
-
-![tuto1](https://i.imgur.com/VbNhw8i.png)
-
-4) Open ``skin.ini``, add on top ``Character=NameOfTheCharacter``, example: ``Character=Rouge`` if the skin is for Rouge.
+3) Open ``skin.ini``, add on top ``Character=NameOfTheCharacter``, example: ``Character=Rouge`` if the skin is for Rouge, then save the ini file, this is case sensitive so respect the example.
 
 ![tuto2](https://i.imgur.com/TODMaF5.png)
 
@@ -77,9 +73,13 @@ Here's the list of the keyword supported for all the characters:
 ```
 
 This is usually enough for a skin mod to work and you can now try it in game.
+However, if the game crashes when you swap a skin, it's possible that it requires to disable the jiggle of the character (this is common if a skin came with a DLL file) you can then add ``DisableJiggle=True`` in ``skin.ini``. 
+
+Optional, but if you want a cleaner folder, you can delete all files that aren't needed (``mod.manifest``, ``mod.version``, DLL files...). You obviously want to keep stuff like the ``gd_pc`` and ``ReplaceTex`` folders since those includes the character models, textures (and anims if any).
+![tuto1](https://i.imgur.com/VbNhw8i.png)
 
 ## Extra notes:
-- If the game crashes when you swap a skin, it's possible that it requires to disable the jiggle of the character (this is common if a skin came with a DLL file) you can add ``DisableJiggle=True`` in ``skin.ini``. 
+
 - This should be rare, but if the skin you want to add has a custom name for the models, animations or textures, you will have to rename them to match SA2's vanilla files. For example the Blaze mod has a file named ``blzmdl.prs``, you will need to rename it ``sonicmdl.prs``, repeat this for animations and textures. (You may want to use Texture Editor to re save the texture and give them a different name as PAK files are sensitive).
 - As mentioned in the limits section earlier, ``.PRS`` textures seem to crash the game, it is recommended to convert them to ``.PAK`` using Texture Editor and the ``Save As`` feature. (This should be rare as most skins tend to use .PAK already.)
 
