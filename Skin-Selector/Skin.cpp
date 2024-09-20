@@ -382,7 +382,7 @@ static void scanFolder_ReplaceFile(const uint8_t charID2, const std::string& src
 		std::string modFile = srcPath + '\\' + std::string(data.cFileName);
 		transform(modFile.begin(), modFile.end(), modFile.begin(), ::tolower);
 
-		// Original filename.
+		//don't replace stagemap (attempt to fix character select crash)
 		if (modFile.find("stagemap") != std::string::npos)
 			continue;
 	
@@ -597,6 +597,7 @@ static void DoSpeedCharsSwap(SkinMod* skin, SonicCharObj2* sCo2, const uint8_t p
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
+		InitCharacterSound();
 	}
 
 
@@ -1166,6 +1167,44 @@ static void ScanMechSubDirectory(std::string gdPCMod, std::vector<SkinMod>& list
 	}
 }
 
+static void ScanDirectoryForJiggleDLL(std::string srcPath, SkinMod* skin)
+{
+	srcPath = normalizePath(srcPath.c_str());
+	WIN32_FIND_DATAA data;
+	char path[MAX_PATH];
+	snprintf(path, sizeof(path), "%s\\*", srcPath.c_str());
+	HANDLE hFind = FindFirstFileA(path, &data);
+
+	if (hFind == INVALID_HANDLE_VALUE)
+	{
+		// No files found.
+		return;
+	}
+
+	do
+	{
+		if (data.cFileName[0] == '.' || data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			continue;
+
+
+		std::string name = data.cFileName; //get found file name
+		transform(name.begin(), name.end(), name.begin(), ::tolower);
+		auto ext = GetExtension(name);
+
+		if (ext != "dll")
+			continue;
+		//if jiggle DLL is found disable jiggle of the skin
+		if (name.find("jiggle") != std::string::npos)
+		{
+			skin->DisableJiggle = true;
+		}
+
+	} while (FindNextFileA(hFind, &data) != 0);
+
+	FindClose(hFind);
+
+}
+
 static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& list)
 {
 	srcPath = normalizePath(srcPath.c_str());
@@ -1206,6 +1245,9 @@ static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& l
 
 			if (s == "")
 			{
+				std::string error = "A skin mod was found at:\n" + inipath + (std::string)"\nbut the character couldn't be detected, please ensure you added 'Character=NameOfTheCharacter' in the ini file and saved properly, then try again.\n";
+		
+				MessageBoxA(MainWindowHandle, error.c_str(), "Skin Selector Error missing Character in skin.ini", MB_ICONWARNING);
 				delete skin;
 				break;
 			}
@@ -1219,6 +1261,11 @@ static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& l
 			info.Cover = skin->getString("", "Cover", "Cover");
 			info.Description = skin->getString("", "Description", "");
 			info.DisableJiggle = skin->getBool("", "DisableJiggle", false);
+
+			if (info.DisableJiggle == false) //check if a DLL to remove jiggle exists just in case
+			{
+				ScanDirectoryForJiggleDLL(srcPath, &info);
+			}
 
 			FillCharInfo(&info);
 			info.Type = (SkinType)skin->getInt("Extra", "Alt", ModT);
