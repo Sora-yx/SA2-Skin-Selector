@@ -79,8 +79,8 @@ void CheckModsOrder(const HelperFunctions& helper)
 
 }
 
-
 extern "C" {
+
 
 	__declspec(dllexport) void __cdecl Init(const char* path, const HelperFunctions& helperFunctions)
 	{
@@ -112,7 +112,7 @@ extern "C" {
 
 	__declspec(dllexport) void __cdecl OnFrame()
 	{
-
+		
 	}
 
 

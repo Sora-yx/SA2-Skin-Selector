@@ -282,11 +282,12 @@ std::string GetCharTexturePath(const char* texName, std::string folderPath, std:
 
 std::vector<std::string> replacedFiles[CharMax];
 
-
 void unReplaceFiles(uint8_t charID2)
 {
 	for (uint16_t i = 0; i < replacedFiles[charID2].size(); i++)
+	{
 		HelperFunctionsGlobal.UnreplaceFile(replacedFiles[charID2].at(i).c_str());
+	}
 
 	replacedFiles[charID2].clear();
 }
@@ -324,6 +325,8 @@ static void scanPRSFolder_int(const uint8_t charID2, const std::string& srcPath,
 		std::string modFile = srcPath + "\\prs\\" + data.cFileName;
 		transform(modFile.begin(), modFile.end(), modFile.begin(), ::tolower);
 
+		if (modFile.find("event_adx") != std::string::npos || modFile.find("stagemap") != std::string::npos || modFile.find("title") != std::string::npos)
+			continue;
 
 		// Original filename.
 		std::string origFile = "resource\\gd_pc\\";
@@ -383,11 +386,21 @@ static void scanFolder_ReplaceFile(const uint8_t charID2, const std::string& src
 		transform(modFile.begin(), modFile.end(), modFile.begin(), ::tolower);
 
 		//don't replace stagemap (attempt to fix character select crash)
-		if (modFile.find("stagemap") != std::string::npos)
+		auto ext = GetExtension(modFile);
+		if (ext == "afs" || modFile.find("stagemap") != std::string::npos || modFile.find("title") != std::string::npos)
 			continue;
-	
+
+
 		std::string origFile = "resource\\gd_pc\\" + modFile.substr(srcLen);
-	
+
+
+		if (!origFile.compare(0, 25, "resource\\gd_pc\\event_adx\\") ||
+			!origFile.compare(0, 27, "resource\\gd_pc\\event_adx_e\\"))
+		{
+			// Original filename should have a ".ahx" extension.
+			ReplaceFileExtension(origFile, ".ahx");
+		}
+
 		HelperFunctionsGlobal.ReplaceFile(origFile.c_str(), modFile.c_str());
 		replacedFiles[charID2].push_back(origFile);
 	} while (FindNextFileA(hFind, &data) != 0);
@@ -658,6 +671,7 @@ static void DoMilesSwap(SkinMod* skin, TailsCharObj2New* mCo2, const uint8_t pnu
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
+		InitCharacterSound();
 	}
 
 	if (skin->DisableJiggle == false)
@@ -858,7 +872,7 @@ static void DoSuperSwap(SkinMod* skin, SuperSonicCharObj2* ssCo2, const uint8_t 
 			LoadSuperShadowJiggle(ssCo2);
 
 	}
-	
+
 
 	currentSkin[pnum][charID2] = *skin;
 }
@@ -1246,7 +1260,7 @@ static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& l
 			if (s == "")
 			{
 				std::string error = "A skin mod was found at:\n" + inipath + (std::string)"\nbut the character couldn't be detected, please ensure you added 'Character=NameOfTheCharacter' in the ini file and saved properly, then try again.\n";
-		
+
 				MessageBoxA(MainWindowHandle, error.c_str(), "Skin Selector Error missing Character in skin.ini", MB_ICONWARNING);
 				delete skin;
 				break;
@@ -1331,7 +1345,7 @@ void initSkinList(const char* path)
 {
 	AddLegacySkin();
 	ScanDirectoryForIniFile(path + (std::string)"\\skins", skinList);
-	
+
 	if (saveSkin)
 	{
 		for (uint8_t i = 0; i < PMax; i++)
