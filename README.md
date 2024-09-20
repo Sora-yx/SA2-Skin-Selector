@@ -20,11 +20,14 @@ This works by adding an existing skin mod in the ``skins`` folder of the mod, ma
 - Support custom effects textures (some mods like Mario, Cosmo and Blaze use it.)
 
 ## Limits
-- Sounds, Voices and Super Sonic / Shadow model transformation work, but they will only get updated on the next stage
-- Full pack mods like DC Characters aren't supported, but combo like Tails mechless and Mech works as well as Sonic and Super Sonic as long as the files use legacy names. (Ie ``sonicmdl`` and ``ssonicmdl``)
+- There is a limit of ~2295 skins per character, as the number of pages of the menu is set to 255.
+- Sounds edits are supported, however voices have only folder support (full replacement of the file ``event_adx_e.afs`` isn't supported)
+- Super Sonic / Shadow model transformation work, but they will only get updated on the next stage
+- Full pack mods like DC Characters aren't supported, but combo like Tails mechless and Mech works as well as Sonic and Super Sonic as long as the files use legacy names. (Ie sonicmdl and ssonicmdl)
 - Although Full Packs aren't supported, you can make a separate folder for each character skin from a pack so you can use them anyway.
-- ``.PRS`` textures seem to crash the game, it's recommended to convert them to ``.PAK`` using ``Texture Editor`` from [SA Tools](https://mm.reimuhakurei.net/SA%20Tools%20x64.7z).
+- .PRS textures seem to crash the game, it's recommended to convert them to .PAK using Texture Editor from SA Tools. (Most skins mods use .PAK though, so you should be fine.)
 - If you are in Super Form using the Super Sonic mod, you cannot swap skins until you detransform for technical reasons.
+- For Chaos 0 skins please use this mod  as the character is very hardcoded and require to disable effects.
 
 
 ## Installation:
