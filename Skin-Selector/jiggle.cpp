@@ -249,16 +249,14 @@ __declspec(naked) void thingSuperShadow() {
 
 void InitJiggleHacks()
 {
-	if (saveSkin) //disable all jiggles, we will manually load them later due to skins that don't handle those
-	{
-		WriteJump((void*)0x716FDD, thingSonic);
-		WriteJump((void*)0x71753d, thingShadow);
-		WriteJump((void*)0x728346, thingKnux);
-		WriteJump((void*)0x728696, thingRouge);
-		WriteJump((void*)0x717257, thingAmy);
-		WriteJump((void*)0x49aacb, thingSuperSonic);
-		WriteJump((void*)0x49ad2f, thingSuperShadow);
-		WriteJump((void*)0x728a3c, thingTikal);
-		WriteData<3>((void*)0x728a8e, 0x90); // tikal jiggle
-	}
+	 //disable all jiggles, we will manually load them later due to skins that don't handle those
+	WriteJump((void*)0x716FDD, thingSonic);
+	WriteJump((void*)0x71753d, thingShadow);
+	WriteJump((void*)0x728346, thingKnux);
+	WriteJump((void*)0x728696, thingRouge);
+	WriteJump((void*)0x717257, thingAmy);
+	WriteJump((void*)0x49aacb, thingSuperSonic);
+	WriteJump((void*)0x49ad2f, thingSuperShadow);
+	WriteJump((void*)0x728a3c, thingTikal);
+	WriteData<3>((void*)0x728a8e, 0x90); // tikal jiggle
 }
