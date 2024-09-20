@@ -14,7 +14,7 @@ struct CharFileInfo
 
 enum SkinType
 {
-	Mod,
+	ModT,
 	Alt,
 	Legacy,
 	LegacyAlt,
@@ -30,7 +30,7 @@ struct SkinMod
 	std::string Cover;
 	std::string FolderPath;
 	uint16_t uniqueID;
-	SkinType Type = Mod;
+	SkinType Type = ModT;
 	bool DisableJiggle = false;
 	CharFileInfo Extra;
 };

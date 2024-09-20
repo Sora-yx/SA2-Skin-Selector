@@ -1219,7 +1219,7 @@ static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& l
 			info.DisableJiggle = skin->getBool("", "DisableJiggle", false);
 
 			FillCharInfo(&info);
-			info.Type = (SkinType)skin->getInt("Extra", "Alt", Mod);
+			info.Type = (SkinType)skin->getInt("Extra", "Alt", ModT);
 
 			std::filesystem::path pathObj(inipath);
 
