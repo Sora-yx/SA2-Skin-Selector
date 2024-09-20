@@ -383,6 +383,8 @@ static void scanFolder_ReplaceFile(const uint8_t charID2, const std::string& src
 		transform(modFile.begin(), modFile.end(), modFile.begin(), ::tolower);
 
 		// Original filename.
+		if (modFile.find("stagemap") != std::string::npos)
+			continue;
 	
 		std::string origFile = "resource\\gd_pc\\" + modFile.substr(srcLen);
 	
