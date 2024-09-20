@@ -64,61 +64,6 @@ void initSDL2(const char* path)
 	if (openMenuBtn == Buttons_Y)
 		return;
 
-	auto helper = HelperFunctionsGlobal;
-	auto InputControls = HelperFunctionsGlobal.Mods->find("sa2-input-controls");
-	auto skinSelector = HelperFunctionsGlobal.Mods->find("sa2.skin.selector");
-	HMODULE CharSelPlus = GetModuleHandle(L"CharacterSelectPlus.dll");
-	HMODULE CharSel = GetModuleHandle(L"SA2CharSel.dll");
-
-	if (InputControls && skinSelector)
-	{
-		int indexInput = -1;
-		int indexSkin = -1;
-		int charPlusSkin = -1;
-
-		for (uint16_t i = 0; i < helper.Mods->size(); i++)
-		{
-			if (helper.Mods->at(i).ID == InputControls->ID)
-				indexInput = i;
-
-			if (helper.Mods->at(i).ID == skinSelector->ID)
-				indexSkin = i;
-
-			if (CharSelPlus)
-			{
-				if (helper.Mods->at(i).DLLHandle == CharSelPlus)
-					charPlusSkin = i;
-			}
-			else if (CharSel)
-			{
-				if (helper.Mods->at(i).DLLHandle == CharSel)
-					charPlusSkin = i;
-			}
-		}
-
-		if (indexSkin != -1)
-		{
-			if (indexInput != -1)
-			{
-				if (indexInput > indexSkin)
-				{
-					MessageBox(MainWindowHandle, L"Error, Skin Selector mod is loaded before Input Controls, please exit the game and load Skin Selector after Input Controls for the best compatibility.", L"Skin Selector - Mod Order Error", MB_ICONWARNING);
-				}
-			}
-
-			if (charPlusSkin != -1)
-			{
-				if (charPlusSkin > indexSkin)
-				{
-					MessageBox(MainWindowHandle, L"Error, Skin Selector mod is loaded before Character Select mod, please exit the game and load Skin Selector after Character Select for the best compatibility.", L"Skin Selector - Mod Order Error", MB_ICONWARNING);
-				}
-			}
-		}
-
-
-	}
-
-
 	if (!GetModuleHandle(L"SDL2.dll"))
 		LoadLibraryA(path);
 
