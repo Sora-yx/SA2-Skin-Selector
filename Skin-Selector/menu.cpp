@@ -185,6 +185,15 @@ void UpdateCursorPos(const uint8_t pnum)
 	menu[pnum].cursor.index = GetCurrentSlotItem(pnum);
 }
 
+bool isMenuOpen(uint8_t playerID)
+{
+
+	if (MainCharObj2[playerID] && menu[playerID].mode != Closed)
+		return true;
+
+	return false;
+}
+
 static bool isMenuOpenByAnotherPlayer(const uint8_t pnum)
 {
 	for (uint8_t j = 0; j < PMax; j++)
@@ -594,10 +603,10 @@ static void MenuExec(task* tp)
 		break;
 	case Open:
 
-			MenuController(pnum);
+		MenuController(pnum);
 
-			if (menu[pnum].cursor.currentItem && menu[pnum].cursor.currentItem->text != "")
-				DrawSubtitlesSA2(1.0f, menu[pnum].cursor.currentItem->text.c_str(), -1, TextLanguage, 0, 0);
+		if (menu[pnum].cursor.currentItem && menu[pnum].cursor.currentItem->text != "")
+			DrawSubtitlesSA2(1.0f, menu[pnum].cursor.currentItem->text.c_str(), -1, TextLanguage, 0, 0);
 		break;
 	case ItemSelected:
 		if (++twp->wtimer == 15)

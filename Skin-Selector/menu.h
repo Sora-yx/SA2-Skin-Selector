@@ -48,5 +48,6 @@ bool isMenuOpenByAPlayer();
 std::string GetCharTexturePath(const char* texName, std::string folderPath, std::string legacyTexName);
 bool isMenuFullyOpenByAPlayer();
 void ClearMenuData(const uint8_t i);
+bool isMenuOpen(uint8_t playerID);
 
 #pragma pack(pop)

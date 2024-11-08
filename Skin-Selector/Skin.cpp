@@ -292,6 +292,11 @@ void unReplaceFiles(uint8_t charID2)
 	replacedFiles[charID2].clear();
 }
 
+std::string BannedFiles[] =
+{
+	"event_adx", "stagemap", "title", "missiontex"
+};
+
 static void scanPRSFolder_int(const uint8_t charID2, const std::string& srcPath, int srcLen)
 {
 	WIN32_FIND_DATAA data;
@@ -325,8 +330,11 @@ static void scanPRSFolder_int(const uint8_t charID2, const std::string& srcPath,
 		std::string modFile = srcPath + "\\prs\\" + data.cFileName;
 		transform(modFile.begin(), modFile.end(), modFile.begin(), ::tolower);
 
-		if (modFile.find("event_adx") != std::string::npos || modFile.find("stagemap") != std::string::npos || modFile.find("title") != std::string::npos)
-			continue;
+		for (int i = 0; i < LengthOfArray(BannedFiles); i++)
+		{
+			if (modFile.find(BannedFiles[i]) != std::string::npos)
+				continue;
+		}
 
 		// Original filename.
 		std::string origFile = "resource\\gd_pc\\";
@@ -385,10 +393,16 @@ static void scanFolder_ReplaceFile(const uint8_t charID2, const std::string& src
 		std::string modFile = srcPath + '\\' + std::string(data.cFileName);
 		transform(modFile.begin(), modFile.end(), modFile.begin(), ::tolower);
 
-		//don't replace stagemap (attempt to fix character select crash)
 		auto ext = GetExtension(modFile);
-		if (ext == "afs" || modFile.find("stagemap") != std::string::npos || modFile.find("title") != std::string::npos)
+		if (ext == "afs")
 			continue;
+
+		//don't replace stagemap (attempt to fix character select crash)
+		for (int i = 0; i < LengthOfArray(BannedFiles); i++)
+		{
+			if (modFile.find(BannedFiles[i]) != std::string::npos)
+				continue;
+		}
 
 
 		std::string origFile = "resource\\gd_pc\\" + modFile.substr(srcLen);

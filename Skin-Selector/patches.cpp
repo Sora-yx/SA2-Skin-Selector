@@ -17,17 +17,22 @@ TaskHook LastBossPlayerManager_t(LastBossPlayerManager);
 //delete eyes tracker to avoid crash when swapping character
 void EyeTracker_r(ObjectMaster* tp)
 {
-	for (uint8_t i = 0; i < PMax; i++)
+	pheadeyewk* eyewk = (pheadeyewk*)tp->EntityData2;
+
+	if (eyewk)
 	{
-		if (deleteEyeTracker[i])
+		auto pnum = eyewk->pnum;
+
+		if (isMenuOpen(pnum))
 		{
-			pheadeyewk* eyewk = (pheadeyewk*)tp->EntityData2;
-			if (eyewk && eyewk->pnum == i)
-			{
-				FreeTask(tp);
-				deleteEyeTracker[i] = false;
-				return;
-			}
+			memset(&eyewk->angy_head, 0, 88);
+		}
+
+		if (deleteEyeTracker[pnum])
+		{
+			FreeTask(tp);
+			deleteEyeTracker[pnum] = false;
+			return;
 		}
 	}
 
@@ -119,7 +124,7 @@ void LastBossPlayerManager_r(ObjectMaster* tp)
 
 		return;
 	}
-	
+
 
 	LastBossPlayerManager_t.Original(tp);
 }

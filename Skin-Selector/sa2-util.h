@@ -41,7 +41,7 @@ struct TailsCharObj2New
 
 struct pheadeyewk
 {
-	uint8_t idk;
+	uint8_t mode;
 	uint8_t pnum;
 	int angy_head;
 	int angz_head;
@@ -68,6 +68,7 @@ struct pheadeyewk
 	obj* headobjptr;
 	obj* leyeobjptr;
 	obj* reyeobjptr;
+
 	char orghead[0xC]; //I'm lazy
 	char orgleye[0xC];
 	char orgreye[0xC];
