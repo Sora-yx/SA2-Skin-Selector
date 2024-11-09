@@ -13,6 +13,19 @@ TaskHook CameraMain_t(cameraCons_Main);
 FunctionHook<void, int> RunObjectIndex_t(RunObjectIndex);
 TaskHook LastBossPlayerManager_t(LastBossPlayerManager);
 
+bool reloadSound = false;
+
+FunctionHook<void> ResetSoundSystem_t(ResetSoundSystem);
+void ResetSoundSystem_r()
+{
+	if (reloadSound)
+	{
+		reloadSound = false;
+		return;
+	}
+
+	ResetSoundSystem_t.Original();
+}
 
 //delete eyes tracker to avoid crash when swapping character
 void EyeTracker_r(ObjectMaster* tp)
@@ -189,6 +202,7 @@ void InitPatches()
 	HomingDashAuraDisp_t.Hook(HomingAuraDisp_r);
 	CameraMain_t.Hook(CameraMain_r);
 	LastBossPlayerManager_t.Hook(LastBossPlayerManager_r);
+	ResetSoundSystem_t.Hook(ResetSoundSystem_r); //fix level sounds not playing properly after skin swap
 
 	WriteCall((void*)0x75668B, ProcessChunkModelsWithCallback_r); //homing aura display
 	WriteCall((void*)0x756A2E, ProcessChunkModelsWithCallback_r); //jump aura display

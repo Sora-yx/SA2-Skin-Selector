@@ -91,6 +91,7 @@ DataArray(NJS_OBJECT*, SuperSonicEyesArray, 0x19EE184, 0x3);
 DataPointer(ObjectMaster*, DrawSubtitlesPtr, 0x1AEFD50);
 VoidFunc(FreeSound, 0x437E10);
 DataPointer(char, PauseDisabled, 0x174AFD6);
+FunctionPointer(void, ResetSpecificSound, (EntityData1* ptdr), 0x437E10);
 
 //void __usercall LoadEyesTrack(int pnum@<ebx>, NJS_OBJECT** a2@<edi>)
 static const void* const LoadEyesTrackPtr = (void*)0x476530;

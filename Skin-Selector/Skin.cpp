@@ -297,6 +297,18 @@ std::string BannedFiles[] =
 	"event_adx", "stagemap", "title", "missiontex"
 };
 
+bool isFileBanned(std::string name)
+{
+	//don't replace stagemap (attempt to fix character select crash)
+	for (int i = 0; i < LengthOfArray(BannedFiles); i++)
+	{
+		if (name.find(BannedFiles[i]) != std::string::npos)
+			return true;
+	}
+
+	return false;
+}
+
 static void scanPRSFolder_int(const uint8_t charID2, const std::string& srcPath, int srcLen)
 {
 	WIN32_FIND_DATAA data;
@@ -330,11 +342,8 @@ static void scanPRSFolder_int(const uint8_t charID2, const std::string& srcPath,
 		std::string modFile = srcPath + "\\prs\\" + data.cFileName;
 		transform(modFile.begin(), modFile.end(), modFile.begin(), ::tolower);
 
-		for (int i = 0; i < LengthOfArray(BannedFiles); i++)
-		{
-			if (modFile.find(BannedFiles[i]) != std::string::npos)
-				continue;
-		}
+		if (isFileBanned(modFile))
+			continue;
 
 		// Original filename.
 		std::string origFile = "resource\\gd_pc\\";
@@ -394,16 +403,12 @@ static void scanFolder_ReplaceFile(const uint8_t charID2, const std::string& src
 		transform(modFile.begin(), modFile.end(), modFile.begin(), ::tolower);
 
 		auto ext = GetExtension(modFile);
-		if (ext == "afs")
+
+		if (ext == "afs" || ext == "png" || ext == "jpg" || ext == "jpeg")
 			continue;
 
-		//don't replace stagemap (attempt to fix character select crash)
-		for (int i = 0; i < LengthOfArray(BannedFiles); i++)
-		{
-			if (modFile.find(BannedFiles[i]) != std::string::npos)
-				continue;
-		}
-
+		if (isFileBanned(modFile))
+			continue;
 
 		std::string origFile = "resource\\gd_pc\\" + modFile.substr(srcLen);
 
@@ -580,6 +585,12 @@ void LoadCoverSkinTex(SkinMenuItem* skin)
 	}
 }
 
+static void ReloadSound()
+{
+	reloadSound = true;
+	InitCharacterSound();
+}
+
 static void DoSpeedCharsSwap(SkinMod* skin, SonicCharObj2* sCo2, const uint8_t pnum)
 {
 	if (isSuper(&sCo2->base))
@@ -624,7 +635,7 @@ static void DoSpeedCharsSwap(SkinMod* skin, SonicCharObj2* sCo2, const uint8_t p
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
-		InitCharacterSound();
+		ReloadSound();
 	}
 
 
@@ -685,7 +696,7 @@ static void DoMilesSwap(SkinMod* skin, TailsCharObj2New* mCo2, const uint8_t pnu
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
-		InitCharacterSound();
+		ReloadSound();
 	}
 
 	if (skin->DisableJiggle == false)
@@ -722,6 +733,7 @@ static void DoEggmanSwap(SkinMod* skin, EggmanCharObj2* eCo2, const uint8_t pnum
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
+		ReloadSound();
 	}
 
 	currentSkin[pnum][charID2] = *skin;
@@ -784,7 +796,7 @@ static void DoKnuxRougeSwap(SkinMod* skin, KnucklesCharObj2* kCo2, const uint8_t
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
-		InitCharacterSound();
+		ReloadSound();
 	}
 
 	if (skin->DisableJiggle == false || Legacy)
@@ -835,6 +847,7 @@ static void DoMechSwap(SkinMod* skin, MechEggmanCharObj2* meCo2, const uint8_t p
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
+		ReloadSound();
 	}
 
 	currentSkin[pnum][charID2] = *skin;
@@ -876,6 +889,7 @@ static void DoSuperSwap(SkinMod* skin, SuperSonicCharObj2* ssCo2, const uint8_t 
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
+		ReloadSound();
 	}
 
 	if (skin->DisableJiggle == false || Legacy)
