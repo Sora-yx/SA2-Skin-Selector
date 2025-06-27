@@ -194,9 +194,31 @@ void __cdecl RunObjectIndex_r(int index)
 	}
 }
 
+void AlwaysLoadAltSkins()
+{
+	WriteData<2>((int*)0x716F2C, 0x90);
+}
+
+void KnucklesToggleUpgradesDisplay(bool enable)
+{
+	if (!enable)
+	{
+		WriteJump((void*)0x72F4BD, (void*)0x72F616);
+	}
+	else
+	{
+		WriteData<1>((int*)0x72F4BD, 0x83);
+		WriteData<1>((int*)0x72F4BE, 0x7C);
+		WriteData<1>((int*)0x72F4BF, 0x24);
+		WriteData<1>((int*)0x72F4C0, 0x10);
+		WriteData<1>((int*)0x72F4C1, 0x1E);
+	}
+}
+
 
 void InitPatches()
 {
+	AlwaysLoadAltSkins();
 	RunObjectIndex_t.Hook(RunObjectIndex_r);
 	EyeTracker_t.Hook(EyeTracker_r);
 	HomingDashAuraDisp_t.Hook(HomingAuraDisp_r);
