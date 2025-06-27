@@ -785,12 +785,10 @@ static void DoKnuxRougeSwap(SkinMod* skin, KnucklesCharObj2* kCo2, const uint8_t
 		if (isAlt(skin->Type))
 		{
 			kCo2->base.Costume = 1;
-			KnucklesToggleUpgradesDisplay(false);
 		}
 		else
 		{
 			kCo2->base.Costume = 0;
-			KnucklesToggleUpgradesDisplay(true);
 		}
 
 		//Replace Textures

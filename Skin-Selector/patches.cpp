@@ -197,6 +197,11 @@ void __cdecl RunObjectIndex_r(int index)
 void AlwaysLoadAltSkins()
 {
 	WriteData<2>((int*)0x716F2C, 0x90);
+	WriteData<2>((int*)0x71748C, 0x90);
+	WriteData<2>((int*)0x728241, 0x90);
+	WriteData<2>((int*)0x728591, 0x90);
+	WriteData<2>((int*)0x740D72, 0x90);
+	WriteData<2>((int*)0x740FD2, 0x90);
 }
 
 void KnucklesToggleUpgradesDisplay(bool enable)
@@ -215,6 +220,22 @@ void KnucklesToggleUpgradesDisplay(bool enable)
 	}
 }
 
+bool KnuxUpgradeExist()
+{
+	return CharacterModels[161].Model && CharacterModels[168].Model && CharacterModels[162].Model && CharacterModels[163].Model && CharacterModels[165].Model;
+}
+
+//unlike other characters, knuckles doesn't check for upgrades and always try to draw them which crash the game if they don't exist
+//we patch this by forcing the game to not render them if the model doesn't exist.
+TaskHook KnucklesDisplay_t(0x72EF20);
+
+void KnucklesDisplay_r(ObjectMaster* tp)
+{
+	KnucklesToggleUpgradesDisplay(KnuxUpgradeExist());
+
+	KnucklesDisplay_t.Original(tp);
+}
+
 
 void InitPatches()
 {
@@ -225,6 +246,7 @@ void InitPatches()
 	CameraMain_t.Hook(CameraMain_r);
 	LastBossPlayerManager_t.Hook(LastBossPlayerManager_r);
 	ResetSoundSystem_t.Hook(ResetSoundSystem_r); //fix level sounds not playing properly after skin swap
+	KnucklesDisplay_t.Hook(KnucklesDisplay_r);
 
 	WriteCall((void*)0x75668B, ProcessChunkModelsWithCallback_r); //homing aura display
 	WriteCall((void*)0x756A2E, ProcessChunkModelsWithCallback_r); //jump aura display
