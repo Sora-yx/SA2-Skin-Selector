@@ -33,6 +33,8 @@ struct SkinMod
 	SkinType Type = ModT;
 	bool DisableJiggle = false;
 	CharFileInfo Extra;
+	std::string MechPath;
+	std::string SuperFormPath;
 };
 
 void initSkinList(const char* path);

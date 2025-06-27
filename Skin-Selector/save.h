@@ -8,6 +8,10 @@ struct SkinSave
 {
 	const char* Name;
 	const char* FolderPath;
+	const char* SuperFormPath;
+	const char* MechPath;
+	bool AltCostume;
+	bool Legacy;
 
 };
 

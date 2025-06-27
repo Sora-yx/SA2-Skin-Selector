@@ -816,6 +816,17 @@ void FinalHazard_Init_r()
 
 void LoadCharacters_r()
 {
+	for (uint8_t pnum = 0; pnum < 2; pnum++)
+	{
+		for (uint8_t pChar = 0; pChar < CharMax; pChar++)
+		{
+			if ( (pnum == 0 && pChar == CurrentCharacter || pnum == 1 && pChar == CurrentCharacter2P) && currentSkin[pnum][pChar].Name != "" && isAlt(currentSkin[pnum][pChar].Type))
+			{
+				AltCostume[pnum] = 1;
+			}
+		}
+	}
+
 	LoadCharacters_t.Original();
 
 	for (uint8_t i = 0; i < PMax; i++)

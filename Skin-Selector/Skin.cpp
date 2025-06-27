@@ -1250,7 +1250,7 @@ static void ScanDirectoryForJiggleDLL(std::string srcPath, SkinMod* skin)
 	FindClose(hFind);
 
 }
-
+std::string oldSkinPath;
 static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& list)
 {
 	srcPath = normalizePath(srcPath.c_str());
@@ -1282,15 +1282,19 @@ static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& l
 		}
 
 		const std::string inipath = std::string(srcPath) + "\\skin.ini";
-
+		if (oldSkinPath != srcPath)
+			PrintDebug("Looking for Skin Mod in %s\n", srcPath);
+		oldSkinPath = srcPath;
 		if (FileExists(inipath))
 		{
+			PrintDebug("Skin Mod found at %s\n", inipath.c_str());
 			const IniFile* skin = new IniFile(inipath);
 
 			std::string s = skin->getString("", "Character", "");
 
 			if (s == "")
 			{
+				PrintDebug("Error loading skin, character couldn't be found.\n");
 				std::string error = "A skin mod was found at:\n" + inipath + (std::string)"\nbut the character couldn't be detected, please ensure you added 'Character=NameOfTheCharacter' in the ini file and saved properly, then try again.\n";
 
 				MessageBoxA(MainWindowHandle, error.c_str(), "Skin Selector Error missing Character in skin.ini", MB_ICONWARNING);

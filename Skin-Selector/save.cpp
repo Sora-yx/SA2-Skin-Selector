@@ -62,6 +62,9 @@ void Save(const uint8_t pnum, const uint8_t charID2)
 	IniGroup* group = skin->createGroup(charIDS);
 	group->setString("Name", currentSkin[pnum][charID2].Name.c_str());
 	group->setString("FolderPath", currentSkin[pnum][charID2].FolderPath.c_str());
+	group->setBool("AltCostume", isAlt(currentSkin[pnum][charID2].Type));	
+	group->setBool("Legacy", isLegacy(currentSkin[pnum][charID2].Type));
+
 	skin->save(inipath);
 	delete skin;
 
@@ -89,6 +92,8 @@ void Load(const uint8_t pnum, const uint8_t charID2)
 		const IniFile* skin = new IniFile(inipath);
 		const std::string charIDS = std::to_string(charID2);
 		const std::string skinFolderPath = skin->getString(charIDS, "FolderPath");
+		const bool Alt = skin->getBool(charIDS, "AltCostume");
+		const bool Legacy = skin->getBool(charIDS, "Legacy");
 
 		delete skin;
 
@@ -97,6 +102,21 @@ void Load(const uint8_t pnum, const uint8_t charID2)
 			savedSkin[pnum][charID2] = GetSavedSkin(charID2, skinFolderPath.c_str());
 			LoadSavedSkin(pnum, charID2);
 			return;
+		}
+		else
+		{
+			if (Alt && Legacy)
+			{
+				for (uint16_t i = 0; i < skinList.size(); i++)
+				{
+					if (skinList[i].Character == charID2 && (isAlt(skinList[i].Type) && isLegacy(skinList[i].Type)))
+					{
+						savedSkin[pnum][charID2] = &skinList[i];
+						currentSkin[pnum][charID2] = *savedSkin[pnum][charID2];
+					}
+				}
+		
+			}
 		}
 	}
 
