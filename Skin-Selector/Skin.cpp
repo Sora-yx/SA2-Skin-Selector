@@ -294,7 +294,7 @@ void unReplaceFiles(uint8_t charID2)
 
 std::string BannedFiles[] =
 {
-	"event_adx", "stagemap", "title", "missiontex"
+	"event_adx_e.afs", "event_adx.afs", "stagemap", "title", "missiontex"
 };
 
 bool isFileBanned(std::string name)
