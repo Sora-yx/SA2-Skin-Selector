@@ -606,7 +606,28 @@ static void MenuExec(task* tp)
 		MenuController(pnum);
 
 		if (menu[pnum].cursor.currentItem && menu[pnum].cursor.currentItem->text != "")
-			DrawSubtitlesSA2(1.0f, menu[pnum].cursor.currentItem->text.c_str(), -1, TextLanguage, 0, 0);
+		{
+			std::string s = menu[pnum].cursor.currentItem->text;
+			if (s.length() > 40)
+			{
+				if (s.find("\n", 35) == std::string::npos)
+				{
+					int index = s.find(" ", 35);
+					if (s.find(" ", 35) == std::string::npos)
+					{
+						s = s.substr(0, 40);
+						s += "...\n\a";
+					}
+					else
+					{
+						s = s.insert(index, "\n\a");
+					}
+
+				}
+			}
+			DrawSubtitlesSA2(1.0f, s.c_str(), -1, TextLanguage, 0, 0);
+		}
+		
 		break;
 	case ItemSelected:
 		if (++twp->wtimer == 15)
