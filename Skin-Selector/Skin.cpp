@@ -514,6 +514,30 @@ static void LoadExtraTextures(CharFileInfo* info, const uint8_t pnum, const uint
 	LoadLifeIcon(info, charID2);
 }
 
+
+static bool HasCommonAnims(CharFileInfo* info, const char* folderPath)
+{
+	std::string animPath = folderPath + (std::string)"\\gd_PC\\PLCOMMTN.PRS";
+	animPath = normalizePath(animPath.c_str());
+	return FileExists(animPath);
+}
+
+static void ReplaceCommonAnimations(CharFileInfo* info, const char* folderPath, const uint8_t pnum, bool hadCustomAnim = false)
+{
+	std::string animPath = folderPath + (std::string)"PLCOMMTN.PRS";
+	animPath = normalizePath(animPath.c_str());
+
+	if (FileExists(animPath) || hadCustomAnim)
+	{
+		if (animCommonPtr)
+		{
+			UnloadAnimation(animCommonPtr);
+			animCommonPtr = LoadMTNFile((char*)"PLCOMMTN.PRS");
+		}
+	}
+}
+
+
 static bool HasCustomAnims(CharFileInfo* info, const char* folderPath)
 {
 	std::string animPath = folderPath + (std::string)"\\gd_PC\\" + info->animName + ".PRS";
@@ -633,6 +657,8 @@ static void DoSpeedCharsSwap(SkinMod* skin, SonicCharObj2* sCo2, const uint8_t p
 		LoadExtraTextures(&extraData, pnum, charID2);
 
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
+		bool hadCustomCommonAnim = HasCommonAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
+		ReplaceCommonAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomCommonAnim);
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
 		ReloadSound();
