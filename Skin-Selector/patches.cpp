@@ -104,7 +104,22 @@ bool isModelFromCharacter(NJS_OBJECT* obj)
 
 bool isCallbackRunning = false;
 
-FunctionHook<void, NJS_OBJECT*, int(__cdecl*)(NJS_CNK_MODEL*)>ProcessChunkModelsWithCallback_t(ProcessChunkModelsWithCallback);
+TaskHook DisplayAfterImage_t(PlayerAfterimage_Disp);
+
+void __cdecl DisplayAfterImage_r(ObjectMaster* a1)
+{
+	if (isMenuOpenByAPlayer())
+	{
+		FreeTask(a1);
+		return;
+	}
+
+	isCallbackRunning = true;
+	DisplayAfterImage_t.Original(a1);
+	isCallbackRunning = false;
+}
+
+
 void __cdecl ProcessChunkModelsWithCallback_r(NJS_OBJECT* object, int(__cdecl* callback)(NJS_CNK_MODEL*))
 {
 	if (isMenuOpenByAPlayer())
@@ -247,6 +262,7 @@ void InitPatches()
 	LastBossPlayerManager_t.Hook(LastBossPlayerManager_r);
 	ResetSoundSystem_t.Hook(ResetSoundSystem_r); //fix level sounds not playing properly after skin swap
 	KnucklesDisplay_t.Hook(KnucklesDisplay_r);
+	DisplayAfterImage_t.Hook(DisplayAfterImage_r);
 
 	WriteCall((void*)0x75668B, ProcessChunkModelsWithCallback_r); //homing aura display
 	WriteCall((void*)0x756A2E, ProcessChunkModelsWithCallback_r); //jump aura display

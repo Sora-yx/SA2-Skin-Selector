@@ -478,10 +478,14 @@ static void DisplayMenu(const uint8_t pnum)
 	if (menu[pnum].pageMax > 1 && menu[pnum].cursor.curPage < menu[pnum].pageMax - 1)
 		DrawArrowPage(menu[pnum].itemPos[2].x + 45, menu[pnum].pos.y + 20, 0.8f, 1); //right
 
+	if (menu[pnum].cursor.curPage < 10)
+		DrawCurrentPage(pnum, 400, 185, menu[pnum].cursor.curPage + 1, menu[pnum].pageMax);
 
-	DrawCurrentPage(pnum, 400, 185, menu[pnum].cursor.curPage + 1, menu[pnum].pageMax);
-	DrawSlash();
-	DrawCurrentPage(pnum, 300, 185, menu[pnum].pageMax, menu[pnum].pageMax);
+	if (menu[pnum].pageMax < 10)
+	{
+		DrawSlash();
+		DrawCurrentPage(pnum, 300, 185, menu[pnum].pageMax, menu[pnum].pageMax);
+	}
 	
 	uint8_t itemCountOnPage = 0;
 
@@ -663,8 +667,9 @@ static void MenuExec(task* tp)
 	auto pwp = MainCharObj2[pnum];
 
 
-	if (GameState != GameStates_Ingame || menu[pnum].itemCount == 0 || !p || p->Action == Action_LightDash || !pwp)
+	if (GameState != GameStates_Ingame || menu[pnum].itemCount == 0 || !p  || !pwp || p->Action == Action_LightDash || p->Action == Action_SpiralUpper || p->Action == Action_DrillClaw)
 		return;
+
 
 	if (pwp->Powerups & Powerups_Dead)
 	{
