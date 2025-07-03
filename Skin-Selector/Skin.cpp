@@ -720,6 +720,8 @@ static void DoMilesSwap(SkinMod* skin, TailsCharObj2New* mCo2, const uint8_t pnu
 		LoadExtraTextures(&extraData, pnum, charID2);
 
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
+		bool hadCustomCommonAnim = HasCommonAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
+		ReplaceCommonAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomCommonAnim);
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
 		ReloadSound();
@@ -757,6 +759,8 @@ static void DoEggmanSwap(SkinMod* skin, EggmanCharObj2* eCo2, const uint8_t pnum
 		LoadExtraTextures(&extraData, pnum, charID2);
 
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
+		bool hadCustomCommonAnim = HasCommonAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
+		ReplaceCommonAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomCommonAnim);
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
 		ReloadSound();
@@ -824,8 +828,11 @@ static void DoKnuxRougeSwap(SkinMod* skin, KnucklesCharObj2* kCo2, const uint8_t
 		LoadExtraTextures(&extraData, pnum, charID2);
 
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
+		bool hadCustomCommonAnim = HasCommonAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
+		ReplaceCommonAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomCommonAnim);
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
+
 		ReloadSound();
 	}
 
@@ -875,6 +882,8 @@ static void DoMechSwap(SkinMod* skin, MechEggmanCharObj2* meCo2, const uint8_t p
 		LoadExtraTextures(&extraData, pnum, charID2);
 
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
+		bool hadCustomCommonAnim = HasCommonAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
+		ReplaceCommonAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomCommonAnim);
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
 		ReloadSound();
@@ -917,6 +926,8 @@ static void DoSuperSwap(SkinMod* skin, SuperSonicCharObj2* ssCo2, const uint8_t 
 		LoadExtraTextures(&extraData, pnum, charID2);
 
 		const std::string gdPCMod = folderPath + "\\gd_PC\\";
+		bool hadCustomCommonAnim = HasCommonAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
+		ReplaceCommonAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomCommonAnim);
 		bool hadCustomAnim = HasCustomAnims(&currentSkin[pnum][charID2].Extra, currentSkin[pnum][charID2].FolderPath.c_str());
 		ReplaceAnimations(&extraData, gdPCMod.c_str(), pnum, hadCustomAnim);
 		ReloadSound();

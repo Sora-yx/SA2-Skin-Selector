@@ -106,4 +106,16 @@ static inline void LoadEyesTrack(int pnum, NJS_OBJECT** a2)
 	}
 }
 
+
+//void __usercall PSetMotion(CharAnimInfo *charAnimInfo@<esi>)
+static const void* const PSetMotionPtr = (void*)0x4692A0;
+static inline void PSetMotion(CharAnimInfo* info)
+{
+	__asm
+	{
+		mov esi, [info]
+		call PSetMotionPtr
+	}
+}
+
 #pragma pack(pop)
