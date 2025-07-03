@@ -11,7 +11,7 @@
 FunctionHook<void> LoadCharacters_t((intptr_t)LoadCharacters);
 FunctionHook<void> FinalHazard_Init_t((intptr_t)FinalHazard_Init);
 
-static NJS_TEXNAME menuTex[27];
+static NJS_TEXNAME menuTex[30];
 static NJS_TEXLIST menuTexlist{ arrayptrandlengthT(menuTex, Uint32) };
 
 const Sint16 charIconX = 59;
@@ -59,6 +59,9 @@ enum texIndexE
 	texIDEggmanMAlt,
 	texIDSuperSonic,
 	texIDSuperShadow,
+	texIDArrowLeft,
+	texIDArrowRight,
+	texIDSlash
 };
 
 uint8_t getAltTexID(const uint8_t charID)
@@ -112,6 +115,9 @@ static NJS_TEXANIM menuTexAnim[]
 	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDEggmanMAlt, 0x0 },
 	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDSuperSonic, 0x0 },
 	{ charIconX, charIconY, charIconX / 2, charIconY / 2, 8, 8, 0x0F4, 0x0F4, texIDSuperShadow, 0x0 },
+	{ 32, 32, 0, 0, 0, 0, 0xFF, 0xFF, texIDArrowLeft, 0x0 },
+	{ 32, 32, 0, 0, 0, 0, 0xFF, 0xFF, texIDArrowRight, 0x0 },
+	{ 32, 32, 0, 0, 0, 0, 0xFF, 0xFF, texIDSlash, 0x0 },
 };
 
 static NJS_SPRITE menuSprite = { { 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 0, &menuTexlist, menuTexAnim };
@@ -246,6 +252,93 @@ static void GoToLastItem(const int lastSlot, const uint8_t pnum)
 	menu[pnum].cursor.curColumn = lastSlot % menu[pnum].columnMax; // Modulo by columnMax to get the correct column
 }
 
+static void DrawArrowPage(Float posX, Float posY, const Float scl, int direction)
+{
+	NJS_SPRITE _sp;
+	_sp.sx = scl;
+	_sp.sy = scl;
+	_sp.p.x = posX;
+	_sp.p.y = posY;
+	_sp.tlist = &menuTexlist;
+	_sp.tanim = menuTexAnim;
+	_sp.ang = 0;
+
+	SetMaterial(1.0f, 1.0f, 1.0f, 1.0f);
+	njDrawSprite2D(&_sp, texIDArrowLeft + direction, -4.0f, 32);
+	ResetMaterial();
+}
+
+void calculatePagePosition(Float sizeX, Float sizeY, Float* outPosX, Float* outPosY)
+{
+	// Scaling factors from screen to internal game units
+	Float resScaleX = (HorizontalResolution / 640.0f);
+	Float resScaleY = (VerticalResolution / 480.0f);
+
+	// Find top-right corner in game coordinates
+	Float topRightX = HorizontalResolution / resScaleX;
+	Float topRightY = 0.0f;
+
+
+	*outPosX = topRightX - (sizeX / 2.0f);
+	*outPosY = topRightY + (sizeY / 2.0f);
+}
+ 
+
+static const int numberSize = 32;
+static NJS_TEXANIM menuNumberTexAnim[] =
+{ 
+	{ numberSize, numberSize, numberSize / 2, numberSize / 2, 8, 8, 0x0F4, 0x0F4, 0, 0 },
+	{ numberSize, numberSize, numberSize / 2, numberSize / 2, 8, 8, 0x0F4, 0x0F4, 1, 0 },
+	{ numberSize, numberSize, numberSize / 2, numberSize / 2, 8, 8, 0x0F4, 0x0F4, 2, 0 },
+	{ numberSize, numberSize, numberSize / 2, numberSize / 2, 8, 8, 0x0F4, 0x0F4, 3, 0 },
+	{ numberSize, numberSize, numberSize / 2, numberSize / 2, 8, 8, 0x0F4, 0x0F4, 4, 0 },
+	{ numberSize, numberSize, numberSize / 2, numberSize / 2, 8, 8, 0x0F4, 0x0F4, 5, 0 },
+	{ numberSize, numberSize, numberSize / 2, numberSize / 2, 8, 8, 0x0F4, 0x0F4, 6, 0 },
+	{ numberSize, numberSize, numberSize / 2, numberSize / 2, 8, 8, 0x0F4, 0x0F4, 7, 0 },
+	{ numberSize, numberSize, numberSize / 2, numberSize / 2, 8, 8, 0x0F4, 0x0F4, 8, 0 },
+	{ numberSize, numberSize, numberSize / 2, numberSize / 2, 8, 8, 0x0F4, 0x0F4, 9, 0 },
+};
+
+static NJS_SPRITE menuNumber = { { 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 0, &CONSOLE_TEXLIST, menuNumberTexAnim };
+
+
+static void DrawCurrentPage(const uint8_t pnum, const Float x, const Float y, int curPage, int pageMax)
+{
+	Float posX, posY;
+	calculatePagePosition(x, y, &posX, &posY);
+	NJS_SPRITE _sp;
+	_sp.sx = 0.5f;
+	_sp.sy = 0.5f;
+	_sp.p.x = posX;
+	_sp.p.y = posY;
+	_sp.tlist = &CONSOLE_TEXLIST;
+	_sp.tanim = menuNumberTexAnim;
+	_sp.ang = 0;
+	menuNumber = _sp;
+
+	SetMaterial(1.0f, 1.0f, 1.0f, 1.0f);
+	njDrawSprite2D(&_sp, curPage, -4.0f, 32);
+	ResetMaterial();
+}
+
+static void DrawSlash()
+{
+
+	NJS_SPRITE _sp;
+	_sp.sx = 0.8f;
+	_sp.sy = 0.6f;
+	_sp.p.x = menuNumber.p.x + 12.0f;
+	_sp.p.y = menuNumber.p.y - 9.0f;
+	_sp.tlist = &menuTexlist;
+	_sp.tanim = menuTexAnim;
+	_sp.ang = 0;
+
+	SetMaterial(1.0f, 1.0f, 1.0f, 1.0f);
+	njDrawSprite2D(&_sp, texIDSlash, -4.0f, 32);
+	ResetMaterial();
+}
+
+
 static void DrawCenteredTitle(const uint8_t pnum, const Float width, const Float height)
 {
 	Float posX, posY;
@@ -377,6 +470,19 @@ static void DisplayMenu(const uint8_t pnum)
 	DrawCenteredTitle(pnum, 150, 22);
 	auto index = GetRealMenuItemIndex(pnum);
 	DrawCursor(menu[pnum].itemPos[index - (menu[pnum].itemMaxPerPage * menu[pnum].cursor.curPage)].x, menu[pnum].itemPos[index - (menu[pnum].itemMaxPerPage * menu[pnum].cursor.curPage)].y, Scl);
+	
+
+	if (menu[pnum].cursor.curPage > 0)
+		DrawArrowPage(menu[pnum].pos.x + 5, menu[pnum].pos.y + 20, 0.8f, 0); //left
+
+	if (menu[pnum].pageMax > 1 && menu[pnum].cursor.curPage < menu[pnum].pageMax - 1)
+		DrawArrowPage(menu[pnum].itemPos[2].x + 45, menu[pnum].pos.y + 20, 0.8f, 1); //right
+
+
+	DrawCurrentPage(pnum, 400, 185, menu[pnum].cursor.curPage + 1, menu[pnum].pageMax);
+	DrawSlash();
+	DrawCurrentPage(pnum, 300, 185, menu[pnum].pageMax, menu[pnum].pageMax);
+	
 	uint8_t itemCountOnPage = 0;
 
 	for (uint8_t i = 0 + menu[pnum].itemMaxPerPage * menu[pnum].cursor.curPage; i < menu[pnum].itemCount; i++)
@@ -806,9 +912,9 @@ void BuildMenu(const uint8_t pnum)
 {
 	ClearMenuData(pnum);
 	InitMenuDrawSettings(pnum);
-	BuildBackgroundMenu(pnum, 350.0f, 310.0f); //previously 400-300
+	BuildBackgroundMenu(pnum, 370.0f, 310.0f); //previously 400-300
 	initMenuItems(pnum);
-	BuildItemIconsPos(pnum, 64.0f, 64.0f, 110.0f, 90.0f); //previously 100-80
+	BuildItemIconsPos(pnum, 74.0f, 64.0f, 110.0f, 90.0f); //previously 100-80
 }
 
 void InitMenu()

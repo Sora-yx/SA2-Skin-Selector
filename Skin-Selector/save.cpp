@@ -49,6 +49,7 @@ static void LoadSavedSkin(const uint8_t pnum, const uint8_t charID2)
 	AdjustMechPath(pnum, charID2);
 	currentSkin[pnum][charID2] = *savedSkin[pnum][charID2];
 	SkinReplaceFiles(currentSkin[pnum][charID2].FolderPath.c_str(), charID2);
+	PrintDebug("[Skin Selector]: Loaded saved skin \"%s\".", currentSkin[pnum][charID2].Name.c_str());
 }
 
 void Save(const uint8_t pnum, const uint8_t charID2)

@@ -1277,6 +1277,14 @@ static void ScanDirectoryForJiggleDLL(std::string srcPath, SkinMod* skin)
 
 }
 std::string oldSkinPath;
+
+
+std::string getParentFolderName(const std::string& pathStr)
+{
+	std::filesystem::path path(pathStr);
+	return path.parent_path().filename().string();
+}
+
 static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& list)
 {
 	srcPath = normalizePath(srcPath.c_str());
@@ -1308,26 +1316,26 @@ static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& l
 		}
 
 		const std::string inipath = std::string(srcPath) + "\\skin.ini";
-		if (oldSkinPath != srcPath)
-			PrintDebug("Looking for Skin Mod in %s\n", srcPath);
+
 		oldSkinPath = srcPath;
 		if (FileExists(inipath))
 		{
-			PrintDebug("Skin Mod found at %s\n", inipath.c_str());
+
 			const IniFile* skin = new IniFile(inipath);
 
 			std::string s = skin->getString("", "Character", "");
 
 			if (s == "")
 			{
-				PrintDebug("Error loading skin, character couldn't be found.\n");
+				PrintDebug("[Skin Selector] Error loading skin, character couldn't be found.\n");
 				std::string error = "A skin mod was found at:\n" + inipath + (std::string)"\nbut the character couldn't be detected, please ensure you added 'Character=NameOfTheCharacter' in the ini file and saved properly, then try again.\n";
 
-				MessageBoxA(MainWindowHandle, error.c_str(), "Skin Selector Error missing Character in skin.ini", MB_ICONWARNING);
+				MessageBoxA(MainWindowHandle, error.c_str(), "[Skin Selector] Error missing Character in skin.ini", MB_ICONWARNING);
 				delete skin;
 				break;
 			}
 
+			PrintDebug("[Skin Selector] %s Skin: \"%s\" found.", s.c_str(), getParentFolderName(inipath).c_str());
 			toLowercase(s);
 			SkinMod info{};
 			info.Character = (Characters)getCharacterValue(s);
@@ -1342,6 +1350,7 @@ static void ScanDirectoryForIniFile(std::string srcPath, std::vector<SkinMod>& l
 			{
 				ScanDirectoryForJiggleDLL(srcPath, &info);
 			}
+
 
 			FillCharInfo(&info);
 			info.Type = (SkinType)skin->getInt("Extra", "Alt", ModT);
@@ -1407,6 +1416,8 @@ void initSkinList(const char* path)
 {
 	AddLegacySkin();
 	ScanDirectoryForIniFile(path + (std::string)"\\skins", skinList);
+
+	PrintDebug("\nLoaded %d skins.\n", skinList.size());
 
 	if (saveSkin)
 	{
