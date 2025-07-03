@@ -967,7 +967,7 @@ void LoadCharacters_r()
 		{
 			if (currentSkin[i][j].Name == "") //if current skin empty
 			{
-				for (uint8_t k = 0; k < skinList.size(); k++)
+				for (uint32_t k = 0; k < skinList.size(); k++)
 				{
 					if (skinList[k].Character == j)
 					{
